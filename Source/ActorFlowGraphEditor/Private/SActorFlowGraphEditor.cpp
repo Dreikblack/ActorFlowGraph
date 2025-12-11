@@ -3,6 +3,10 @@
 #include "ActorFlowGraphAssetEditor.h"
 #include "Framework/Commands/GenericCommands.h"
 #include "ActorFlowEdGraphNode.h"
+#include "ActorFlowEdGraph.h"
+#include "ActorFlowGraphSchema.h"
+#include "SGraphPanel.h"
+
 
 #define LOCTEXT_NAMESPACE "SActorFlowGraphEditor"
 
@@ -10,7 +14,7 @@ void SActorFlowGraphEditor::Construct(const FArguments& InArgs, const TSharedPtr
 {
 	FlowAssetEditor = InAssetEditor;
 	FlowAsset = FlowAssetEditor.Pin()->GraphAsset;
-	//DetailsView = InArgs._DetailsView;
+	DetailsView = InArgs._DetailsView;
 
 	BindGraphCommands();
 
@@ -23,7 +27,8 @@ void SActorFlowGraphEditor::Construct(const FArguments& InArgs, const TSharedPtr
 	Arguments._GraphEvents = InArgs._GraphEvents;
 	Arguments._AutoExpandActionMenu = true;
 	Arguments._GraphEvents.OnSelectionChanged = FOnSelectionChanged::CreateSP(this, &SActorFlowGraphEditor::OnSelectedNodesChanged);
-	//Arguments._GraphEvents.OnNodeDoubleClicked = FSingleNodeEvent::CreateSP(this, &SActorFlowGraphEditor::OnNodeDoubleClicked);
+	Arguments._GraphEvents.OnMouseButtonDown = FOnMouseButtonDown::CreateSP(this, &SActorFlowGraphEditor::OnMouseMouseButtonDown);
+
 
 	SGraphEditor::Construct(Arguments);
 }
@@ -125,6 +130,31 @@ void SActorFlowGraphEditor::OnSelectedNodesChanged(const TSet<UObject*>& Nodes)
 				}
 		}		
 	}
+}
+
+FReply SActorFlowGraphEditor::OnMouseMouseButtonDown(const FGeometry& Geometry, const FPointerEvent& PointerEvent)
+{
+	UActorFlowEdGraph* ActorGraph = Cast<UActorFlowEdGraph>(FlowAssetEditor.Pin()->Graph);
+	bool bWasConnectionClicked = false;
+	if (ActorGraph->SplineOverlapResult.GetCloseToSpline())
+	{
+		UEdGraphPin* OutPin1;
+		UEdGraphPin* OutPin2;
+		if (ActorGraph->SplineOverlapResult.GetPins(*GetGraphPanel(), OutPin1, OutPin2))
+		{
+			bWasConnectionClicked = true;
+			UActorFlowEdGraphNode* ActorFlowGraphNodeA = Cast<UActorFlowEdGraphNode>(OutPin1->GetOwningNode());
+			FGuidPair Pair(OutPin1->PinId, OutPin2->PinId);
+			ActorGraph->SelectedConnection = Pair;
+			DetailsView->SetObject(ActorFlowGraphNodeA->Connections.FindRef(Pair));
+		}
+	}
+	if (!bWasConnectionClicked)
+	{
+		DetailsView->SetObject(nullptr);
+		ActorGraph->SelectedConnection = FGuidPair();
+	}
+	return FReply::Unhandled();
 }
 
 void SActorFlowGraphEditor::SelectNodeByActor(AActor* Actor)

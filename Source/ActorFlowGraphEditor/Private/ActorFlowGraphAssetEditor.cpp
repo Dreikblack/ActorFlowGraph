@@ -5,11 +5,13 @@
 #include "ActorFlowGraphAsset.h"
 #include "ActorFlowEdGraphNode.h"
 #include "SActorFlowGraphEditor.h"
+#include "ActorFlowGraphRuntime.h"
 
 #define LOCTEXT_NAMESPACE "ActorFlowGraphAssetEditor"
 
 
 const FName FActorFlowGraphAssetEditor::GraphTabID(TEXT("ActorFlowNode_GraphTab"));
+const FName FActorFlowGraphAssetEditor::DetailsTabID(TEXT("ActorFlowNode_DetailsTab"));
 
 FActorFlowGraphAssetEditor::FActorFlowGraphAssetEditor()
 {
@@ -97,15 +99,29 @@ void FActorFlowGraphAssetEditor::InitActorFlowAssetEditor(
 	GraphAsset->SetFlags(RF_Transactional);
 	GEditor->RegisterForUndo(this);
 
+	FPropertyEditorModule& PropModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+
+	FDetailsViewArgs Args;
+	Args.bHideSelectionTip = true;
+	Args.bAllowSearch = false;
+
+	DetailsView = PropModule.CreateDetailView(Args);
+
 	const TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("ActorFlowEditor_Layout_v1")
 		->AddArea
 		(
-			FTabManager::NewPrimaryArea()->SetOrientation(Orient_Vertical)
+			FTabManager::NewPrimaryArea()->SetOrientation(Orient_Horizontal)	
 			->Split
 			(
 				FTabManager::NewStack()
 				->SetSizeCoefficient(1.0f)
 				->AddTab(GraphTabID, ETabState::OpenedTab)
+			)
+			->Split
+			(
+				FTabManager::NewStack()
+				->SetSizeCoefficient(0.225f)
+				->AddTab(DetailsTabID, ETabState::OpenedTab)
 			)
 		);
 
@@ -130,11 +146,17 @@ void FActorFlowGraphAssetEditor::RegisterTabSpawners(const TSharedRef<FTabManage
 	)
 		.SetDisplayName(FText::FromString("Actor Flow Graph"))
 		.SetGroup(WorkspaceMenuCategory.ToSharedRef());
+
+	InTabManager->RegisterTabSpawner(DetailsTabID, FOnSpawnTab::CreateSP(this, &FActorFlowGraphAssetEditor::SpawnDetailsTab))
+		.SetDisplayName(LOCTEXT("DetailsTab", "Details"))
+		.SetGroup(WorkspaceMenuCategory.ToSharedRef())
+		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.Tabs.Details"));
 }
 
 void FActorFlowGraphAssetEditor::UnregisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
 {
 	InTabManager->UnregisterTabSpawner(GraphTabID);
+	InTabManager->UnregisterTabSpawner(DetailsTabID);
 }
 
 TSharedRef<SDockTab> FActorFlowGraphAssetEditor::SpawnGraphTab(const FSpawnTabArgs& Args)
@@ -146,13 +168,24 @@ TSharedRef<SDockTab> FActorFlowGraphAssetEditor::SpawnGraphTab(const FSpawnTabAr
 	GraphEvents.OnDropActors = SGraphEditor::FOnDropActors::CreateSP(this, &FActorFlowGraphAssetEditor::OnDropActors);
 
 	SAssignNew(GraphEditorWidget, SActorFlowGraphEditor, SharedThis(this))
-		.GraphEvents(GraphEvents);
-		//.DetailsView(DetailsView);
+		.GraphEvents(GraphEvents)
+		.DetailsView(DetailsView);
 
 	return SNew(SDockTab)
 		.Label(FText::FromString("Actor Flow Graph"))
 		[
 			GraphEditorWidget.ToSharedRef()
+		];
+}
+
+TSharedRef<SDockTab> FActorFlowGraphAssetEditor::SpawnDetailsTab(const FSpawnTabArgs& Args)
+{
+	check(Args.GetTabId() == DetailsTabID);
+
+	return SNew(SDockTab)
+		.Label(LOCTEXT("ActorFlowDetailsTitle", "Details"))
+		[
+			DetailsView.ToSharedRef()
 		];
 }
 

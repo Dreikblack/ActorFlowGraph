@@ -85,10 +85,15 @@ void UActorFlowSubsystem::Emit(UObject* Sender, FName PinName)
 							{
 								if (InputPin.PinName == Connection.TargetPinName && InputPin.OwnerName == Connection.TargetOwnerName)
 								{
+									TMap<FName, UFlowVariableBase*> VariablesMap;
+									if (Connection.Variables)
+									{
+										VariablesMap = Connection.Variables->VariablesMap;
+									}
 									TMap<FName, void*> Args;
 									if (InputPin.OwnerName == InActor->GetFName())
 									{
-										CallFunctionByName(InActor, InputPin.PinName, Args);
+										CallFunctionByName(InActor, InputPin.PinName, VariablesMap);
 									}
 									else
 									{
@@ -96,7 +101,7 @@ void UActorFlowSubsystem::Emit(UObject* Sender, FName PinName)
 										{
 											if (InputPin.OwnerName == CurrentComponent->GetFName())
 											{
-												CallFunctionByName(CurrentComponent, InputPin.PinName, Args);
+												CallFunctionByName(CurrentComponent, InputPin.PinName, VariablesMap);
 												break;
 											}
 										}

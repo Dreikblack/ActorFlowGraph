@@ -31,6 +31,37 @@ bool UActorFlowGraphSchema::TryCreateConnection(UEdGraphPin* PinA, UEdGraphPin* 
 		UActorFlowEdGraphNode* ActorFlowGraphNodeA = Cast<UActorFlowEdGraphNode>(PinA->GetOwningNode());
 		UActorFlowEdGraphNode* ActorFlowGraphNodeB = Cast<UActorFlowEdGraphNode>(PinB->GetOwningNode());
 
+		FGuidPair Pair(PinA->PinId, PinB->PinId);
+		AActor* InActor = Cast<AActor>(ActorFlowGraphNodeB->Actor.TryLoad());
+		if (!InActor)
+		{
+			return bModified;
+		}
+		if (PinB->GetPrimaryTerminalType().TerminalSubCategory == InActor->GetFName())
+		{
+			UFunction* Func = InActor->FindFunction(PinB->GetFName());
+			if (Func)
+			{		
+				ActorFlowGraphNodeA->Connections.Add(Pair, GetVariablesByFunction(ActorFlowGraphNodeA, Func));
+			}
+
+		}
+		else
+		{
+			for (UActorComponent* CurrentComponent : InActor->GetComponents())
+			{
+				if (PinB->GetPrimaryTerminalType().TerminalSubCategory == CurrentComponent->GetFName())
+				{
+					UFunction* Func = CurrentComponent->FindFunction(PinB->GetFName());
+					if (Func)
+					{
+						ActorFlowGraphNodeA->Connections.Add(Pair, GetVariablesByFunction(ActorFlowGraphNodeA, Func));
+					}
+					break;
+				}
+			}
+		}
+
 		UEdGraph* EdGraph = ActorFlowGraphNodeA->GetGraph();
 
 		EdGraph->NotifyNodeChanged(ActorFlowGraphNodeA);
@@ -38,6 +69,53 @@ bool UActorFlowGraphSchema::TryCreateConnection(UEdGraphPin* PinA, UEdGraphPin* 
 	}
 
 	return bModified;
+}
+
+UFlowConnectionVariables* UActorFlowGraphSchema::GetVariablesByFunction(UActorFlowEdGraphNode* ActorFlowGraphNode, UFunction* InFunction) const
+{
+	UFlowConnectionVariables* Variables = NewObject<UFlowConnectionVariables>(ActorFlowGraphNode, UFlowConnectionVariables::StaticClass(), NAME_None, RF_Transactional);
+
+	for (TFieldIterator<FProperty> It(InFunction); It; ++It)
+	{
+		FProperty* Prop = *It;
+		UFlowVariableBase* Var = MakeFlowVarFromProperty(Variables, Prop);
+		if (Var)
+		{
+			Variables->VariablesMap.Add(Prop->GetFName(), Var);
+		}
+		else
+		{
+			Variables->VariablesMap.Add(Prop->GetFName());
+		}
+	}
+	return Variables;
+}
+
+void UActorFlowGraphSchema::BreakSinglePinLink(UEdGraphPin* SourcePin, UEdGraphPin* TargetPin) const
+{
+	FGuidPair Pair(SourcePin->PinId, TargetPin->PinId);
+	UActorFlowEdGraphNode* ActorFlowGraphNode = Cast<UActorFlowEdGraphNode>(SourcePin->GetOwningNode());
+
+	UFlowConnectionVariables* Variables = ActorFlowGraphNode->Connections.FindRef(Pair);
+	if (Variables)
+	{
+		ActorFlowGraphNode->Connections.Remove(Pair);
+	}
+	Super::BreakSinglePinLink(SourcePin, TargetPin);
+}
+
+void UActorFlowGraphSchema::BreakPinLinks(UEdGraphPin& TargetPin, bool bSendsNodeNotifcation) const
+{
+	UActorFlowEdGraphNode* ActorFlowGraphNode = Cast<UActorFlowEdGraphNode>(TargetPin.GetOwningNode());
+
+	for (auto It = ActorFlowGraphNode->Connections.CreateIterator(); It; ++It)
+	{
+		if (It->Key.A == TargetPin.PinId)
+		{
+			It.RemoveCurrent();
+		}
+	}
+	Super::BreakPinLinks(TargetPin, bSendsNodeNotifcation);
 }
 
 void UActorFlowGraphSchema::CreatePins(UClass* InCls, FName InName, UActorFlowEdGraphNode* Node)

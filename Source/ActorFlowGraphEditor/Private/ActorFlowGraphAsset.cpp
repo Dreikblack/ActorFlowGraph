@@ -82,6 +82,20 @@ void UActorFlowGraphAsset::UpdateAssetFromGraph()
 						Connection.TargetOwnerName = TargetPin->GetPrimaryTerminalType().TerminalSubCategory;
 						Connection.TargetNodeId = TargetPin->GetOwningNode()->NodeGuid;
 
+						FGuidPair Pair(Pin->PinId, TargetPin->PinId);
+						UFlowConnectionVariables* NodeVariables = FlowNode->Connections.FindRef(Pair);
+						if (NodeVariables)
+						{
+							UFlowConnectionVariables* AssetVariables = NewObject<UFlowConnectionVariables>(ActorFlowGraphRuntime, UFlowConnectionVariables::StaticClass());
+							for (auto& MapPair : NodeVariables->VariablesMap)
+							{
+								UFlowVariableBase* NewVar = DuplicateObject(MapPair.Value, AssetVariables);
+								AssetVariables->VariablesMap.Add(MapPair.Key, NewVar);
+							}
+							AssetVariables->VariablesMap;
+							Connection.Variables = AssetVariables;
+						}
+
 						PinToSave.OutputConnections.Add(Connection);
 					}
 				}

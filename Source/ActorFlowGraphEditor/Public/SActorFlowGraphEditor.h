@@ -21,6 +21,7 @@ public:
 protected:
 	TWeakObjectPtr<UActorFlowGraphAsset> FlowAsset;
 	TWeakPtr<FActorFlowGraphAssetEditor> FlowAssetEditor;
+	TSharedPtr<IDetailsView> DetailsView;
 	TSharedPtr<FUICommandList> CommandList;
 	bool bSelectionSyncInProgress = false;
 public:
@@ -32,6 +33,8 @@ protected:
 	virtual void DeleteSelectedNodes();
 	virtual bool CanDeleteNodes() const;
 	virtual void OnSelectedNodesChanged(const TSet<UObject*>& Nodes);
+	virtual FReply OnMouseMouseButtonDown(const FGeometry& Geometry, const FPointerEvent& PointerEvent);
+	
 public:
 	static bool CanEdit();
 	virtual bool IsTabFocused() const;

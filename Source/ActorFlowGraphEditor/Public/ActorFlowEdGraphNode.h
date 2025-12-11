@@ -2,7 +2,30 @@
 
 #include "CoreMinimal.h"
 #include "EdGraph/EdGraphNode.h"
+#include "ActorFlowSubsystem.h"
 #include "ActorFlowEdGraphNode.generated.h"
+
+USTRUCT()
+struct FGuidPair
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FGuid A;
+
+	UPROPERTY()
+	FGuid B;
+
+	bool operator==(const FGuidPair& Other) const
+	{
+		return A == Other.A && B == Other.B;
+	}
+};
+
+FORCEINLINE uint32 GetTypeHash(const FGuidPair& Key)
+{
+	return HashCombine(GetTypeHash(Key.A), GetTypeHash(Key.B));
+}
 
 UCLASS()
 class ACTORFLOWGRAPHEDITOR_API UActorFlowEdGraphNode : public UEdGraphNode
@@ -21,6 +44,9 @@ public:
 
 	UPROPERTY()
 	TArray<FComponentReference> Components;
+
+	UPROPERTY(EditAnywhere, Instanced)
+	TMap<FGuidPair, UFlowConnectionVariables*> Connections;
 
 	virtual void AllocateDefaultPins() override;
 

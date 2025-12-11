@@ -1,6 +1,6 @@
 #include "ActorFlowUtils.h"
 
-static bool CallFunctionByName(UObject* Object, const FName FuncName, const TMap<FName, void*>& ArgValues)
+static bool CallFunctionByName(UObject* Object, const FName FuncName, TMap<FName, UFlowVariableBase*> VariablesMap)
 {
 	if (!Object)
 	{
@@ -24,10 +24,11 @@ static bool CallFunctionByName(UObject* Object, const FName FuncName, const TMap
 
 		if (Prop->HasAnyPropertyFlags(CPF_Parm))
 		{
-			void* ValuePtr = ArgValues.FindRef(Prop->GetFName());
-			if (ValuePtr)
+			UFlowVariableBase* Var = VariablesMap.FindRef(Prop->GetFName());
+			if (Var)
 			{
-				Prop->CopyCompleteValue_InContainer(ParamsBuffer, ValuePtr);
+				void* Dest = Prop->ContainerPtrToValuePtr<void>(ParamsBuffer);
+				Var->PushToArgs(Dest);
 			}
 		}
 	}

@@ -1,18 +1,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FlowVariableBase.h"
+
 #include "ActorFlowGraphRuntime.generated.h"
 
-USTRUCT()
-struct FFlowVariable
+
+UCLASS(EditInlineNew)
+class UFlowConnectionVariables : public UObject
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
-	FName VariableName;
-
-	UPROPERTY()
-	TArray<uint8> SerializedData; //the value is serialized as bytes
+public:
+	UPROPERTY(EditAnywhere, Instanced)
+	TMap<FName, UFlowVariableBase*> VariablesMap;
 };
 
 USTRUCT()
@@ -40,8 +41,8 @@ struct FConnectionFlowNode
 	UPROPERTY()
 	FName TargetPinName;
 
-	UPROPERTY()
-	TArray<FFlowVariable> Variables;
+	UPROPERTY(EditAnywhere, Instanced, Category = "Input Variables")
+	UFlowConnectionVariables* Variables;
 };
 
 USTRUCT()

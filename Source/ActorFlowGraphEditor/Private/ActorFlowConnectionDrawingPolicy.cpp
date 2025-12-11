@@ -1,4 +1,7 @@
 #include "ActorFlowConnectionDrawingPolicy.h"
+#include "ActorFlowGraphSchema.h"
+#include "ActorFlowEdGraph.h"
+#include "ActorFlowEdGraphNode.h"
 
 FActorFlowConnectionDrawingPolicy::FActorFlowConnectionDrawingPolicy(
 	int32 InBackLayerID,
@@ -17,11 +20,6 @@ FActorFlowConnectionDrawingPolicy::FActorFlowConnectionDrawingPolicy(
 	GraphObj = InGraph;
 }
 
-void FActorFlowConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2f& Start, const FVector2f& End, const FConnectionParams& Params)
-{
-	FConnectionDrawingPolicy::DrawConnection(LayerId, Start, End, Params);
-}
-
 void FActorFlowConnectionDrawingPolicy::DetermineWiringStyle(UEdGraphPin* OutputPin, UEdGraphPin* InputPin, FConnectionParams& Params)
 {
 	Params.AssociatedPin1 = OutputPin;
@@ -30,7 +28,6 @@ void FActorFlowConnectionDrawingPolicy::DetermineWiringStyle(UEdGraphPin* Output
 	// Get the schema and grab the default color from it
 	check(OutputPin);
 	check(GraphObj);
-	const UEdGraphSchema* Schema = GraphObj->GetSchema();
 
 	if (OutputPin->bOrphanedPin || (InputPin && InputPin->bOrphanedPin))
 	{
@@ -39,8 +36,22 @@ void FActorFlowConnectionDrawingPolicy::DetermineWiringStyle(UEdGraphPin* Output
 
 	const bool bDeemphasizeUnhoveredPins = HoveredPins.Num() > 0;
 
+	UActorFlowEdGraph* ActorGraph = Cast<UActorFlowEdGraph>(GraphObj);
+	if (ActorGraph->SelectedConnection == FGuidPair(OutputPin->PinId, InputPin->PinId))
+	{
+		Params.WireColor = FLinearColor::Yellow;
+		Params.WireThickness = 3.0f;
+	}
+
 	if (bDeemphasizeUnhoveredPins)
 	{
 		ApplyHoverDeemphasis(OutputPin, InputPin, /*inout*/ Params.WireThickness, /*inout*/ Params.WireColor);
 	}
+}
+
+void FActorFlowConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2f& Start, const FVector2f& End, const FConnectionParams& Params)
+{
+	UActorFlowEdGraph* ActorGraph = Cast<UActorFlowEdGraph>(GraphObj);
+	FConnectionDrawingPolicy::DrawConnection(LayerId, Start, End, Params);
+	ActorGraph->SplineOverlapResult = SplineOverlapResult;
 }

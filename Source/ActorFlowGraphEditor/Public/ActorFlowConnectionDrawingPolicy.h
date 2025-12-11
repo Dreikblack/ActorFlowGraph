@@ -16,11 +16,6 @@ public:
         FSlateWindowElementList& InDrawElements,
         UEdGraph* InGraph);
 
-    virtual void DrawConnection(
-        int32 LayerId,
-        const FVector2f& Start,
-        const FVector2f& End,
-        const FConnectionParams& Params) override;
-
     virtual void DetermineWiringStyle(UEdGraphPin* OutputPin, UEdGraphPin* InputPin, FConnectionParams& Params) override;
+    virtual void DrawConnection(int32 LayerId, const FVector2f& Start, const FVector2f& End, const FConnectionParams& Params) override;
 };

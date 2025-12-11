@@ -23,4 +23,4 @@ inline void FlowEmit(UObject* Sender, FName Pin)
 
 #define FLOW_EMIT(Pin) FlowEmit(this, FName(Pin))
 
-static bool CallFunctionByName(UObject* Object, const FName FuncName, const TMap<FName, void*>& ArgValues);
+static bool CallFunctionByName(UObject* Object, const FName FuncName, TMap<FName, UFlowVariableBase*> VariablesMap);
