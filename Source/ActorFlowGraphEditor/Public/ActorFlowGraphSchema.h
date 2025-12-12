@@ -19,7 +19,7 @@ public:
     virtual const FPinConnectionResponse CanCreateConnection(const UEdGraphPin* A, const UEdGraphPin* B) const override;
 
     virtual bool TryCreateConnection(UEdGraphPin* A, UEdGraphPin* B) const override;
-    virtual UFlowConnectionVariables* GetVariablesByFunction(UActorFlowEdGraphNode* ActorFlowGraphNode, UFunction* InFunction) const;
+    virtual UFlowConnectionVariables* GetVariablesByFunction(UActorFlowEdGraphNode* ActorFlowGraphNode, UFunction* InFunction, UEdGraphPin* PinA, UEdGraphPin* PinB) const;
     virtual void BreakSinglePinLink(UEdGraphPin* SourcePin, UEdGraphPin* TargetPin) const override;
     virtual void BreakPinLinks(UEdGraphPin& TargetPin, bool bSendsNodeNotifcation) const override;
 

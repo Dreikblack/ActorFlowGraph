@@ -37,7 +37,7 @@ void FActorFlowConnectionDrawingPolicy::DetermineWiringStyle(UEdGraphPin* Output
 	const bool bDeemphasizeUnhoveredPins = HoveredPins.Num() > 0;
 
 	UActorFlowEdGraph* ActorGraph = Cast<UActorFlowEdGraph>(GraphObj);
-	if (ActorGraph->SelectedConnection == FGuidPair(OutputPin->PinId, InputPin->PinId))
+	if (OutputPin && InputPin && ActorGraph->SelectedConnection == FGuidPair(OutputPin->PinId, InputPin->PinId))
 	{
 		Params.WireColor = FLinearColor::Yellow;
 		Params.WireThickness = 3.0f;

@@ -5,13 +5,18 @@
 
 #include "ActorFlowGraphRuntime.generated.h"
 
-
+/*Actor Flow Connection*/
 UCLASS(EditInlineNew)
 class UFlowConnectionVariables : public UObject
 {
 	GENERATED_BODY()
 
 public:
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(EditAnywhere)
+	FString ConnectionName;
+#endif 
+
 	UPROPERTY(EditAnywhere, Instanced)
 	TMap<FName, UFlowVariableBase*> VariablesMap;
 };

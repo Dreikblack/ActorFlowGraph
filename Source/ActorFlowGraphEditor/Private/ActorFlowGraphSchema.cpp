@@ -42,7 +42,7 @@ bool UActorFlowGraphSchema::TryCreateConnection(UEdGraphPin* PinA, UEdGraphPin* 
 			UFunction* Func = InActor->FindFunction(PinB->GetFName());
 			if (Func)
 			{		
-				ActorFlowGraphNodeA->Connections.Add(Pair, GetVariablesByFunction(ActorFlowGraphNodeA, Func));
+				ActorFlowGraphNodeA->Connections.Add(Pair, GetVariablesByFunction(ActorFlowGraphNodeA, Func, PinA, PinB));
 			}
 
 		}
@@ -55,7 +55,7 @@ bool UActorFlowGraphSchema::TryCreateConnection(UEdGraphPin* PinA, UEdGraphPin* 
 					UFunction* Func = CurrentComponent->FindFunction(PinB->GetFName());
 					if (Func)
 					{
-						ActorFlowGraphNodeA->Connections.Add(Pair, GetVariablesByFunction(ActorFlowGraphNodeA, Func));
+						ActorFlowGraphNodeA->Connections.Add(Pair, GetVariablesByFunction(ActorFlowGraphNodeA, Func, PinA, PinB));
 					}
 					break;
 				}
@@ -71,7 +71,7 @@ bool UActorFlowGraphSchema::TryCreateConnection(UEdGraphPin* PinA, UEdGraphPin* 
 	return bModified;
 }
 
-UFlowConnectionVariables* UActorFlowGraphSchema::GetVariablesByFunction(UActorFlowEdGraphNode* ActorFlowGraphNode, UFunction* InFunction) const
+UFlowConnectionVariables* UActorFlowGraphSchema::GetVariablesByFunction(UActorFlowEdGraphNode* ActorFlowGraphNode, UFunction* InFunction, UEdGraphPin* PinA, UEdGraphPin* PinB) const
 {
 	UFlowConnectionVariables* Variables = NewObject<UFlowConnectionVariables>(ActorFlowGraphNode, UFlowConnectionVariables::StaticClass(), NAME_None, RF_Transactional);
 
@@ -88,6 +88,7 @@ UFlowConnectionVariables* UActorFlowGraphSchema::GetVariablesByFunction(UActorFl
 			Variables->VariablesMap.Add(Prop->GetFName());
 		}
 	}
+	Variables->ConnectionName = PinA->GetName() + " -> " + PinB->GetName();
 	return Variables;
 }
 
