@@ -94,6 +94,7 @@ void UActorFlowSubsystem::Emit(UObject* Sender, FName PinName)
 									if (InputPin.OwnerName == InActor->GetFName())
 									{
 										CallFunctionByName(InActor, InputPin.PinName, VariablesMap);
+										Emit(InActor, InputPin.PinName);
 									}
 									else
 									{
@@ -102,6 +103,7 @@ void UActorFlowSubsystem::Emit(UObject* Sender, FName PinName)
 											if (InputPin.OwnerName == CurrentComponent->GetFName())
 											{
 												CallFunctionByName(CurrentComponent, InputPin.PinName, VariablesMap);
+												Emit(CurrentComponent, InputPin.PinName);
 												break;
 											}
 										}

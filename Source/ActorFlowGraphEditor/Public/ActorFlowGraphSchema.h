@@ -23,7 +23,8 @@ public:
     virtual void BreakSinglePinLink(UEdGraphPin* SourcePin, UEdGraphPin* TargetPin) const override;
     virtual void BreakPinLinks(UEdGraphPin& TargetPin, bool bSendsNodeNotifcation) const override;
 
-    void CreatePins(UClass* InCls, FName InName, UActorFlowEdGraphNode* Node);
+    void CreatePins(UClass* InCls, FName InOwnerName, UActorFlowEdGraphNode* Node);
+    void CreatePin(UActorFlowEdGraphNode* Node, FName PinName, FName OwnerName, bool bIsInput);
 
     virtual class FConnectionDrawingPolicy* CreateConnectionDrawingPolicy(int32 InBackLayerID, int32 InFrontLayerID, float InZoomFactor, const FSlateRect& InClippingRect, class FSlateWindowElementList& InDrawElements, class UEdGraph* InGraphObj) const override;
    

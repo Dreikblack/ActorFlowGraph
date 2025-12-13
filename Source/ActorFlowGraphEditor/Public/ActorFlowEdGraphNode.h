@@ -5,6 +5,10 @@
 #include "ActorFlowSubsystem.h"
 #include "ActorFlowEdGraphNode.generated.h"
 
+class SSearchBox;
+class ITableRow;
+template <typename ItemType> class SListView;
+
 USTRUCT()
 struct FGuidPair
 {
@@ -34,7 +38,7 @@ class ACTORFLOWGRAPHEDITOR_API UActorFlowEdGraphNode : public UEdGraphNode
 
 protected:
 	virtual TSharedPtr<SGraphNode> CreateVisualWidget() override;
-
+	void CreateAttachAddOnSubMenu(UToolMenu* Menu, bool bIsInput);
 public:
 	UPROPERTY()
 	FName ActorName;
@@ -42,8 +46,8 @@ public:
 	UPROPERTY()
 	FSoftObjectPath Actor;
 
-	UPROPERTY()
-	TArray<FComponentReference> Components;
+	//UPROPERTY()
+	//TArray<FComponentReference> Components;
 
 	UPROPERTY(EditAnywhere, Instanced)
 	TMap<FGuidPair, UFlowConnectionVariables*> Connections;
@@ -56,4 +60,5 @@ public:
 	virtual bool CanUserDeleteNode() const override;
 	virtual bool CanDuplicateNode() const override;
 	virtual bool IncludeParentNodeContextMenu() const override;
+	virtual void AddFunctionPin(TStrongObjectPtr<UObject> InObject, FName FunctionName, bool bIsInput);
 };

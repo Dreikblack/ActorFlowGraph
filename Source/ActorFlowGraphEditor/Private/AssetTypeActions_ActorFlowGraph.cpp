@@ -54,11 +54,23 @@ void FAssetTypeActions_ActorFlowGraph::OpenAssetEditor(const TArray<UObject*>& I
 		auto GraphAsset = Cast<UActorFlowGraphAsset>(Obj);
 		if (GraphAsset)
 		{
+			//Open existing
+			if (GraphAsset->EdGraph)
+			{
+				IAssetEditorInstance* ExistingEditor =
+					GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()
+					->FindEditorForAsset(GraphAsset->EdGraph, /*bFocusIfOpen*/ true);
+				if (ExistingEditor)
+				{
+					continue;
+				}
+			}
+
+			//Make new
 			if (!GraphAsset->EdGraph)
 			{
 				GraphAsset->EdGraph = NewObject<UActorFlowEdGraph>(GraphAsset, UActorFlowEdGraph::StaticClass(), NAME_None, RF_Transactional);
 				GraphAsset->EdGraph->Schema = UActorFlowGraphSchema::StaticClass();
-
 			}
 			
 			TSharedRef<FActorFlowGraphAssetEditor> NewEditor = MakeShared<FActorFlowGraphAssetEditor>();

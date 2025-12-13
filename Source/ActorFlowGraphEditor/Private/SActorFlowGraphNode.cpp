@@ -6,6 +6,7 @@
 #include "SLevelOfDetailBranchNode.h"
 #include "GraphEditorSettings.h"
 
+#define LOCTEXT_NAMESPACE "SActorFlowGraphNode"
 
 void SActorFlowGraphNode::Construct(const FArguments& InArgs, UActorFlowEdGraphNode* InNode)
 {
@@ -112,10 +113,10 @@ void SActorFlowGraphNode::UpdateGraphNode()
 		[
 			SNew(SBorder)
 				.BorderImage(FAppStyle::GetBrush("Graph.Node.ColorSpill"))
-				.Padding(FMargin(75.0f, 22.0f)) // Saving enough space for a 'typical' title so the transition isn't quite so abrupt
+				.Padding(FMargin(75.0f, 22.0f)) 
 				.BorderBackgroundColor(this, &SGraphNode::GetNodeTitleColor)
 		]
-	.HighDetail()
+		.HighDetail()
 		[
 			DefaultTitleAreaWidget
 		];
@@ -203,7 +204,7 @@ void SActorFlowGraphNode::AddPinGroup(TSharedPtr<SVerticalBox> Parent,
 }
 
 TSharedRef<SWidget> SActorFlowGraphNode::BuildPinGroupWidget(const TArray<UEdGraphPin*>& Pins)
-{	
+{
 	TSharedRef<SVerticalBox> LeftPinsBox = SNew(SVerticalBox);
 	TSharedRef<SVerticalBox> RightPinsBox = SNew(SVerticalBox);
 
@@ -274,3 +275,5 @@ void SActorFlowGraphNode::AddPin(const TSharedRef<SGraphPin>& PinToAdd)
 		OutputPins.Add(PinToAdd);
 	}
 }
+
+#undef LOCTEXT_NAMESPACE

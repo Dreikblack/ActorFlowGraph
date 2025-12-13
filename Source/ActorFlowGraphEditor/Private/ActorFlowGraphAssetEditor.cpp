@@ -6,6 +6,8 @@
 #include "ActorFlowEdGraphNode.h"
 #include "SActorFlowGraphEditor.h"
 #include "ActorFlowGraphRuntime.h"
+#include "ActorFlowEdGraph.h"
+
 
 #define LOCTEXT_NAMESPACE "ActorFlowGraphAssetEditor"
 
@@ -98,6 +100,9 @@ void FActorFlowGraphAssetEditor::InitActorFlowAssetEditor(
 	GraphAsset = InGraphAsset;
 	GraphAsset->SetFlags(RF_Transactional);
 	GEditor->RegisterForUndo(this);
+
+	UActorFlowEdGraph* ActorGraph = Cast<UActorFlowEdGraph>(Graph);
+	ActorGraph->SelectedConnection = FGuidPair();
 
 	FPropertyEditorModule& PropModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
 

@@ -15,9 +15,14 @@ const FPinConnectionResponse UActorFlowGraphSchema::CanCreateConnection(const UE
 	{
 		return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, TEXT("Pins should be in and out"));
 	}
-	if (A == B)
+	else if (A == B)
 	{
 		return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, TEXT("Same pin"));
+	}
+	else if (A->GetFName() == B->GetFName() && A->GetOwningNode() == B->GetOwningNode() 
+		&& A->GetPrimaryTerminalType().TerminalSubCategory == B->GetPrimaryTerminalType().TerminalSubCategory)
+	{
+		return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, TEXT("No loops (same function in same actor/component"));
 	}
 	return FPinConnectionResponse(CONNECT_RESPONSE_MAKE, TEXT(""));
 }
@@ -119,7 +124,7 @@ void UActorFlowGraphSchema::BreakPinLinks(UEdGraphPin& TargetPin, bool bSendsNod
 	Super::BreakPinLinks(TargetPin, bSendsNodeNotifcation);
 }
 
-void UActorFlowGraphSchema::CreatePins(UClass* InCls, FName InName, UActorFlowEdGraphNode* Node)
+void UActorFlowGraphSchema::CreatePins(UClass* InCls, FName InOwnerName, UActorFlowEdGraphNode* Node)
 {
 	FString OutputsString = InCls->GetMetaData(TEXT("FlowOutputs"));
 
@@ -129,19 +134,22 @@ void UActorFlowGraphSchema::CreatePins(UClass* InCls, FName InName, UActorFlowEd
 	for (FString& Out : Outputs)
 	{
 		Out = Out.TrimStartAndEnd();
-		auto pin = Node->CreatePin(EGPD_Output, TEXT("FlowPin"), InName, FName(*Out));
-		pin->bNotConnectable = false;
+		CreatePin(Node, FName(*Out), InOwnerName, false);
 	}
 
-	for (TFieldIterator<UFunction> It(InCls, EFieldIteratorFlags::IncludeSuper); It; ++It)
+	for (TFieldIterator<UFunction> It(InCls, EFieldIterationFlags::IncludeSuper); It; ++It)
 	{
 		UFunction* Func = *It;
 		if (Func->HasMetaData(TEXT("FlowInput")))
 		{
-			auto pin = Node->CreatePin(EGPD_Input, TEXT("FlowPin"), InName, Func->GetFName());
-			pin->bNotConnectable = false;
+			CreatePin(Node, Func->GetFName(), InOwnerName, false);
 		}
 	}
+}
+
+void UActorFlowGraphSchema::CreatePin(UActorFlowEdGraphNode* Node, FName PinName, FName InOwnerName, bool bIsInput)
+{
+	auto pin = Node->CreatePin(bIsInput ? EGPD_Input : EGPD_Output, TEXT("FlowPin"), InOwnerName, PinName);
 }
 
 FConnectionDrawingPolicy* UActorFlowGraphSchema::CreateConnectionDrawingPolicy(int32 InBackLayerID, int32 InFrontLayerID, float InZoomFactor, const FSlateRect& InClippingRect, FSlateWindowElementList& InDrawElements, UEdGraph* InGraphObj) const
