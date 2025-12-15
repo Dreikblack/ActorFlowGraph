@@ -4,6 +4,7 @@
 #include "Widgets/SCompoundWidget.h"
 #include "Widgets/Input/SSearchBox.h"
 #include "Widgets/Views/SListView.h"
+#include "SFunctionPickerWidget.generated.h"
 
 class UClass;
 
@@ -18,6 +19,21 @@ struct FFunctionPickerItem
 	EPickerRowType RowType;
 	FName Name;
 	FString Signature;
+};
+
+UCLASS(Config = EditorPerProjectUserSettings)
+class UFunctionPickerPrefixFilterConfig : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, Config, Category = "Function Prefix Filter")
+	TArray<FString> ExcludedPrefixes;
+
+	UFunctionPickerPrefixFilterConfig()
+	{
+		ExcludedPrefixes = { TEXT("K2_"), TEXT("Get"), TEXT("Has"), TEXT("Is") };
+	}
 };
 
 DECLARE_DELEGATE_OneParam(FOnFunctionPicked, FName);
@@ -38,15 +54,27 @@ public:
 private:
 	TArray<TSharedPtr<FFunctionPickerItem>> AllFunctions;
 
+	TArray<TSharedPtr<FFunctionPickerItem>> AfterPrefixFunctions;
+
 	TArray<TSharedPtr<FFunctionPickerItem>> FilteredFunctions;
 
 	TSharedPtr<SListView<TSharedPtr<FFunctionPickerItem>>> ListViewWidget;
 
 	FOnFunctionPicked OnFunctionPicked;
 
-	TArray<FString> ExcludePrefixes = { TEXT("K2_"), TEXT("GET"), TEXT("Has"), TEXT("Is") };
+	UFunctionPickerPrefixFilterConfig* PrefixFilterConfig = nullptr;
+
+	TSharedPtr<ISinglePropertyView> PrefixArrayWidget;
+
+	TSharedPtr<IDetailsView> DetailsView;
+
+	FText SearchText;
 
 	void OnSearchChanged(const FText& Text);
+
+	void UpdatePrefixFilter();
+
+	void UpdateCategoryFilter();
 
 	/** List Widget Item */
 	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FFunctionPickerItem> Item, const TSharedRef<STableViewBase>& OwnerTable) const;

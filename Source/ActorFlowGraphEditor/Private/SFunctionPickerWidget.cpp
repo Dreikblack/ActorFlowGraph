@@ -1,18 +1,53 @@
-#include "SFunctionPickerWidget.h"
+﻿#include "SFunctionPickerWidget.h"
 #include "Engine/BlueprintGeneratedClass.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Text/STextBlock.h"
+#include "ISinglePropertyView.h"
 
 void SFunctionPickerWidget::Construct(const FArguments& InArgs)
 {
 	OnFunctionPicked = InArgs._OnFunctionPicked;
 
+	PrefixFilterConfig = GetMutableDefault<UFunctionPickerPrefixFilterConfig>();
+
+	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+
+	FDetailsViewArgs Args;
+	Args.bHideSelectionTip = true;
+	Args.bAllowSearch = false;
+	Args.bShowScrollBar = false;
+	Args.bLockable = false;
+	Args.bUpdatesFromSelection = false;
+
+	DetailsView = PropertyModule.CreateDetailView(Args);
+	DetailsView->SetObject(PrefixFilterConfig);
+
+	DetailsView->OnFinishedChangingProperties().AddLambda(
+		[this](const FPropertyChangedEvent&)
+		{
+			PrefixFilterConfig->SaveConfig();
+			UpdatePrefixFilter();
+			OnSearchChanged(SearchText);
+		}
+	);
+
 	BuildFunctionList(InArgs._TargetClass);
-	FilteredFunctions = AllFunctions;
+	UpdatePrefixFilter();
+	FilteredFunctions = AfterPrefixFunctions;
+	UpdateCategoryFilter();
 
 	ChildSlot
 		[
 			SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SBox)
+						[
+							DetailsView.ToSharedRef()
+						]
+				]
 
 				// Search
 				+ SVerticalBox::Slot()
@@ -59,20 +94,6 @@ void SFunctionPickerWidget::BuildFunctionList(UClass* TargetClass)
 
 		if (Func->HasAnyFunctionFlags(FUNC_BlueprintCallable) && Func->HasAnyFunctionFlags(FUNC_Public))
 		{
-			FString FuncName = Func->GetName();
-			bool bDoSkipFunction = false;
-			for (FString Prefix : ExcludePrefixes)
-			{
-				if (FuncName.StartsWith(Prefix)) 
-				{
-					bDoSkipFunction = true;
-					break;
-				}
-			}
-			if (bDoSkipFunction)
-			{
-				continue;
-			}
 			FName Category = NAME_None;
 			if (Func->HasMetaData(TEXT("Category")))
 			{
@@ -80,7 +101,6 @@ void SFunctionPickerWidget::BuildFunctionList(UClass* TargetClass)
 			}
 			ByCategory.FindOrAdd(Category).Add(Func);
 		}
-
 	}
 
 	for (auto& Pair : ByCategory)
@@ -144,19 +164,81 @@ FString SFunctionPickerWidget::BuildFunctionSignature(UFunction* Func)
 
 void SFunctionPickerWidget::OnSearchChanged(const FText& Text)
 {
+	SearchText = Text;
+
+	if (Text.IsEmpty())
+	{
+		FilteredFunctions = AfterPrefixFunctions;
+		UpdateCategoryFilter();
+		return;
+	}
+ 
 	const FString Query = Text.ToString();
 
 	FilteredFunctions.Empty();
 
-	for (const TSharedPtr<FFunctionPickerItem>& PickedFunction : AllFunctions)
+	for (const TSharedPtr<FFunctionPickerItem>& PickedFunction : AfterPrefixFunctions)
 	{
-		if (Query.IsEmpty() || PickedFunction->Name.ToString().Contains(Query))
+		if (PickedFunction->RowType == EPickerRowType::Category || PickedFunction->Name.ToString().Contains(Query))
 		{
 			FilteredFunctions.Add(PickedFunction);
 		}
 	}
 
+	UpdateCategoryFilter();
+
 	ListViewWidget->RequestListRefresh();
+}
+
+void SFunctionPickerWidget::UpdatePrefixFilter()
+{
+	AfterPrefixFunctions.Reset();
+
+	for (const TSharedPtr<FFunctionPickerItem>& Item : AllFunctions)
+	{
+		if (Item->RowType == EPickerRowType::Category)
+		{
+			AfterPrefixFunctions.Add(Item);
+			continue;
+		}
+		bool bDoSkipFunction = false;
+		for (FString Prefix : PrefixFilterConfig->ExcludedPrefixes)
+		{
+			FString FunName = Item->Name.ToString();
+			if (FunName.StartsWith(Prefix))
+			{
+				if (FunName.IsValidIndex(Prefix.Len()))
+				{
+					TCHAR Character = FunName[Prefix.Len()];
+					if (FChar::IsUpper(Character))
+					{
+						bDoSkipFunction = true;
+						break;
+					}
+				}
+			}
+		}
+		if (!bDoSkipFunction)
+		{
+			AfterPrefixFunctions.Add(Item);
+		}
+	}
+
+}
+
+void SFunctionPickerWidget::UpdateCategoryFilter()
+{
+	EPickerRowType PrevRowType = EPickerRowType::Function;
+	for (int32 Index = FilteredFunctions.Num() - 1; Index >= 0; --Index)
+	{
+		if (PrevRowType == EPickerRowType::Category && FilteredFunctions[Index]->RowType == EPickerRowType::Category)
+		{
+			PrevRowType = EPickerRowType::Category;
+			FilteredFunctions.RemoveAt(Index);
+			continue;
+		}
+		PrevRowType = FilteredFunctions[Index]->RowType;
+	}
 }
 
 TSharedRef<ITableRow> SFunctionPickerWidget::OnGenerateRow(TSharedPtr<FFunctionPickerItem> Item, const TSharedRef<STableViewBase>& OwnerTable) const
