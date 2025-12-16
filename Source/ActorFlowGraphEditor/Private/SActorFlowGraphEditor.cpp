@@ -20,8 +20,13 @@ void SActorFlowGraphEditor::Construct(const FArguments& InArgs, const TSharedPtr
 
 	SGraphEditor::FArguments Arguments;
 	Arguments._AdditionalCommands = CommandList;
-	FGraphAppearanceInfo AppearanceInfo;
-	AppearanceInfo.CornerText = FText::FromString("Actor Flow Graph");
+	FString CornerText = "Actor Flow Graph";
+	if (FlowAsset->LevelName != NAME_None)
+	{
+		CornerText = CornerText + " (" + FlowAsset->LevelName.ToString() + ")";
+	}
+	FGraphAppearanceInfo AppearanceInfo; 
+	AppearanceInfo.CornerText = FText::FromString(CornerText);
 	Arguments._Appearance = AppearanceInfo;
 	Arguments._GraphToEdit = FlowAsset->EdGraph;
 	Arguments._GraphEvents = InArgs._GraphEvents;

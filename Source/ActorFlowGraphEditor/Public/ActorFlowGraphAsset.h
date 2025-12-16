@@ -19,6 +19,10 @@ public:
 #if WITH_EDITORONLY_DATA
     UPROPERTY(EditAnywhere)
     UActorFlowEdGraph* EdGraph = nullptr;
+
+    UPROPERTY(EditAnywhere)
+    FName LevelName;
+
     virtual void PreSave(FObjectPreSaveContext SaveContext) override;
 #endif
     void UpdateAssetFromGraph();

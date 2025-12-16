@@ -72,6 +72,7 @@ void UActorFlowEdGraphNode::GetNodeContextMenuActions(UToolMenu* Menu, UGraphNod
 						UEdGraphPin* Pin = Node->FindPinById(ConstPin->PinId);
 						if (Pin)
 						{
+							const FScopedTransaction Transaction(FText::FromString("Remove Pin"));
 							Node->Modify();
 							Node->RemovePin(Pin);
 							Node->ReconstructNode();

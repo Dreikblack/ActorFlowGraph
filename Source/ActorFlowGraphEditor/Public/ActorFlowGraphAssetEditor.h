@@ -58,4 +58,5 @@ public:
 	UEdGraph* Graph = nullptr;
 	UActorFlowGraphAsset* GraphAsset = nullptr;
 	void SelectNode(AActor* Actor);
+	void DeleteNodesByActor(AActor* InDeletedActor);
 };

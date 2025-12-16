@@ -110,4 +110,7 @@ class ACTORFLOWGRAPH_API UActorFlowGraphRuntime : public UPrimaryDataAsset
 public:
 	UPROPERTY(EditAnywhere)
 	TArray<FActorFlowNode> Nodes;
+
+	UPROPERTY(EditAnywhere)
+	FName LevelName;
 };

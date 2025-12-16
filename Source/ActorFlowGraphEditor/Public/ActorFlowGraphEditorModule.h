@@ -11,6 +11,7 @@ class ACTORFLOWGRAPHEDITOR_API FActorFlowGraphEditorModule : public FDefaultModu
 {
 private:
 	void OnEditorSelectionChanged(UObject* NewSelection);
+	void OnActorDeleted(AActor* DeletedActor);
 public:
 	static EAssetTypeCategories::Type ActorFlowGraphAssetCategory;
 	TArray<TSharedPtr<IAssetTypeActions>> RegisteredAssetTypeActions;

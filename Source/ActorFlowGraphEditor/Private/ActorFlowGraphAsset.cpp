@@ -3,6 +3,7 @@
 #include "UObject/ObjectSaveContext.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "UObject/SavePackage.h"
+#include "ActorFlowEdGraph.h"
 
 void UActorFlowGraphAsset::PreSave(FObjectPreSaveContext SaveContext)
 {
@@ -108,6 +109,7 @@ void UActorFlowGraphAsset::UpdateAssetFromGraph()
 		}
 
 		ActorFlowGraphRuntime->Nodes.Add(AssetNode);
+		ActorFlowGraphRuntime->LevelName = LevelName;
 	}
 
 	//Save runtime asset

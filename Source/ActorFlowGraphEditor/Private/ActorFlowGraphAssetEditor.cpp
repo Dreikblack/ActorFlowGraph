@@ -206,6 +206,10 @@ void FActorFlowGraphAssetEditor::OnDropActors(const TArray< TWeakObjectPtr<AActo
 		for (int32 i = 0; i < Actors.Num(); i++)
 		{
 			AActor* DroppedActor = Actors[i].Get();
+			if (GraphAsset->LevelName == NAME_None)
+			{
+				GraphAsset->LevelName = DroppedActor->GetLevel()->GetOuter()->GetFName();
+			}
 			UActorFlowGraphSchema* Schema = Cast<UActorFlowGraphSchema>(GetMutableDefault<UEdGraphSchema>(InGraph->Schema));
 			if (Schema)
 			{
@@ -266,6 +270,49 @@ void FActorFlowGraphAssetEditor::SelectNode(AActor* Actor)
 	}
 	GraphEditorWidget->SelectNodeByActor(Actor);
 	
+}
+
+void FActorFlowGraphAssetEditor::DeleteNodesByActor(AActor* InDeletedActor)
+{
+	if (!Graph)
+	{
+		return;
+	}
+	TArray<UEdGraphNode*> NodesToRemove;
+	for (UEdGraphNode* Node : Graph->Nodes)
+	{
+		if (UActorFlowEdGraphNode* FlowNode = Cast<UActorFlowEdGraphNode>(Node))
+		{
+			if (!FlowNode->Actor.IsValid())
+			{
+				NodesToRemove.Add(FlowNode);
+				continue;
+			}
+			UObject* Resolved = FlowNode->Actor.ResolveObject();
+			if (!Resolved)
+			{
+				NodesToRemove.Add(FlowNode);
+				continue;
+			}
+			if (Resolved == InDeletedActor)
+			{
+				NodesToRemove.Add(FlowNode);
+				break;
+			}
+		}
+	}
+	if (!NodesToRemove.IsEmpty())
+	{
+		const FScopedTransaction Transaction(FText::FromString("Delete Node from Graph by Deleted Actor"));
+
+		Graph->Modify();
+		for (UEdGraphNode* Node : NodesToRemove)
+		{
+			Node->Modify();
+			Graph->RemoveNode(Node);
+		}
+		Graph->NotifyGraphChanged();
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

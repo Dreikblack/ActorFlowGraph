@@ -29,6 +29,14 @@ void FActorFlowGraphEditorModule::StartupModule()
 
     USelection::SelectionChangedEvent.AddRaw(this, &FActorFlowGraphEditorModule::OnEditorSelectionChanged);
 
+    if (GEditor)
+    {
+        GEditor->OnLevelActorDeleted().AddRaw(
+            this,
+            &FActorFlowGraphEditorModule::OnActorDeleted
+        );
+    }
+
 }
 
 void FActorFlowGraphEditorModule::ShutdownModule()
@@ -66,14 +74,40 @@ void FActorFlowGraphEditorModule::OnEditorSelectionChanged(UObject* NewSelection
         if (Editor->GetEditorName() == "ActorFlowGraphEditor")
         {
             FActorFlowGraphAssetEditor* OpenedEditor = static_cast<FActorFlowGraphAssetEditor*>(Editor);
-            for (UObject* SelectedObject : SelectedActors)
+            if (OpenedEditor)
             {
-                if (AActor* Actor = Cast<AActor>(SelectedObject))
+                for (UObject* SelectedObject : SelectedActors)
                 {
-                    OpenedEditor->SelectNode(Actor);
+                    if (AActor* Actor = Cast<AActor>(SelectedObject))
+                    {
+                        OpenedEditor->SelectNode(Actor);
+                    }
                 }
             }
         }
     }
+}
+
+void FActorFlowGraphEditorModule::OnActorDeleted(AActor* DeletedActor)
+{
+    if (!DeletedActor)
+    {
+        return;
+    }
+
+    for (IAssetEditorInstance* Editor : GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->GetAllOpenEditors())
+    {
+        if (Editor->GetEditorName() == "ActorFlowGraphEditor")
+        {
+            FActorFlowGraphAssetEditor* OpenedEditor = static_cast<FActorFlowGraphAssetEditor*>(Editor);
+            if (OpenedEditor)
+            {
+                OpenedEditor->DeleteNodesByActor(DeletedActor);
+            }
+
+        }
+    }
+
+
 }
 
