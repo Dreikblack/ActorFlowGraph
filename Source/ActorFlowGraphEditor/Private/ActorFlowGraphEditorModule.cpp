@@ -5,6 +5,7 @@
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Selection.h"
 #include "ActorFlowGraphAssetEditor.h"
+#include "ActorFlowEditorStyle.h"
 
 IMPLEMENT_MODULE(FActorFlowGraphEditorModule, ActorFlowGraphEditor);
 
@@ -13,6 +14,8 @@ EAssetTypeCategories::Type FActorFlowGraphEditorModule::ActorFlowGraphAssetCateg
 
 void FActorFlowGraphEditorModule::StartupModule()
 {
+    FActorFlowEditorStyle::Initialize();
+
     IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 
     //Get or create Flow category in Assets Categories
@@ -30,6 +33,8 @@ void FActorFlowGraphEditorModule::StartupModule()
 
 void FActorFlowGraphEditorModule::ShutdownModule()
 {
+    FActorFlowEditorStyle::Shutdown();
+
     if (FModuleManager::Get().IsModuleLoaded("AssetTools")) {
         IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
         for (TSharedPtr<IAssetTypeActions>& AssetIt : RegisteredAssetTypeActions) {
