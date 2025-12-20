@@ -202,16 +202,32 @@ void UActorFlowGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& Con
 
 	for (UClass* ComponentClass : CachedFlowComponents)
 	{
+		FString Name = FName::NameToDisplayString(ComponentClass->GetName(), false);
+		Name.RemoveFromEnd(TEXT(" Component"));
+
 		ContextMenuBuilder.AddAction(
 			MakeShared<FActorFlowSchemaAction_NewNode>(
 				FText::FromString("Components"),
-				FText::FromString(FName::NameToDisplayString(ComponentClass->GetName(), false)),
+				FText::FromString(Name),
 				FText::FromString("Add Actor with this Component"),
 				0,
 				ComponentClass
 			)
 		);
 	}
+	if (!ContextMenuBuilder.FromPin)
+	{
+		ContextMenuBuilder.AddAction(
+			MakeShared<FActorFlowSchemaAction_NewComment>(
+				FText::GetEmpty(),
+				FText::FromString("Add Comment"),
+				FText::FromString("Create new Comment"),
+				0
+			)
+		);
+	}
+	
+	
 }
 
 void UActorFlowGraphSchema::GetContextMenuActions(UToolMenu* Menu, UGraphNodeContextMenuContext* Context) const

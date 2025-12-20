@@ -6,7 +6,7 @@
 #include "ActorFlowEdGraph.h"
 #include "ActorFlowGraphSchema.h"
 #include "SGraphPanel.h"
-
+#include "EdGraphNode_Comment.h"
 
 #define LOCTEXT_NAMESPACE "SActorFlowGraphEditor"
 
@@ -133,7 +133,12 @@ void SActorFlowGraphEditor::OnSelectedNodesChanged(const TSet<UObject*>& Nodes)
 					GEditor->SelectNone(false, true);
 					GEditor->SelectActor(Actor, true, true, true);
 				}
-		}		
+		} 
+		else if (UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(Object))
+		{
+			DetailsView->SetObject(CommentNode);
+		}
+
 	}
 }
 

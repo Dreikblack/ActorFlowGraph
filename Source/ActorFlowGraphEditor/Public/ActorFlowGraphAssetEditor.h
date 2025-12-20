@@ -63,4 +63,10 @@ public:
 	void SelectNode(AActor* Actor);
 	void DeleteNodesByActor(AActor* InDeletedActor);
 	UActorFlowEdGraphNode* CreateNodeFromActor(UEdGraph* Graph, AActor* Actor, const FVector2f& Position);
+
+	TSharedPtr<SActorFlowGraphEditor> GetEditorWidget() const
+	{
+		return GraphEditorWidget;
+	}
+
 };

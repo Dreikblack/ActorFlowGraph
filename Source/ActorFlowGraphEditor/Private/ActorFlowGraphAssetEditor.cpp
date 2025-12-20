@@ -116,14 +116,14 @@ void FActorFlowGraphAssetEditor::InitActorFlowAssetEditor(
 
 	Palette = SNew(SActorFlowPalette).Graph(Graph);
 
-	const TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("ActorFlowEditor_Layout_v2")
+	const TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("ActorFlowEditor_Layout_v3")
 		->AddArea
 		(
 			FTabManager::NewPrimaryArea()->SetOrientation(Orient_Horizontal)	
 			->Split
 			(
 				FTabManager::NewStack()
-				->SetSizeCoefficient(0.225f)
+				->SetSizeCoefficient(0.12f)
 				->AddTab(PaletteTabID, ETabState::OpenedTab)
 			)
 			->Split
@@ -135,7 +135,7 @@ void FActorFlowGraphAssetEditor::InitActorFlowAssetEditor(
 			->Split
 			(
 				FTabManager::NewStack()
-				->SetSizeCoefficient(0.225f)
+				->SetSizeCoefficient(0.2f)
 				->AddTab(DetailsTabID, ETabState::OpenedTab)
 			)
 		);

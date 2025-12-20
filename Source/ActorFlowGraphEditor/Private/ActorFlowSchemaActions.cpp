@@ -2,6 +2,8 @@
 #include "ActorFlowEdGraph.h"
 #include "ActorFlowGraphAssetEditor.h"
 #include "Toolkits/ToolkitManager.h"
+#include "EdGraphNode_Comment.h"
+#include "SActorFlowGraphEditor.h"
 
 UEdGraphNode* FActorFlowSchemaAction_NewNode::PerformAction(UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode)
 {
@@ -52,4 +54,38 @@ UEdGraphNode* FActorFlowSchemaAction_NewNode::PerformAction(UEdGraph* ParentGrap
 		return AssetEditor->CreateNodeFromActor(ParentGraph, Actor, FVector2f(Location.X, Location.Y));
 	}
 	return NULL;
+}
+
+UEdGraphNode* FActorFlowSchemaAction_NewComment::PerformAction(UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode)
+{
+	// prevent adding new nodes while playing
+	if (GEditor->PlayWorld != nullptr)
+	{
+		return nullptr;
+	}
+
+	UEdGraphNode_Comment* CommentTemplate = NewObject<UEdGraphNode_Comment>();
+	FVector2D SpawnLocation = Location;
+
+	const TSharedPtr<IToolkit> FoundAssetEditor = FToolkitManager::Get().FindEditorForAsset(ParentGraph);
+	if (FoundAssetEditor.IsValid())
+	{
+		TSharedPtr<FActorFlowGraphAssetEditor> AssetEditor = StaticCastSharedPtr<FActorFlowGraphAssetEditor>(FoundAssetEditor);
+		const TSharedPtr<SActorFlowGraphEditor> SGraphEditor = AssetEditor->GetEditorWidget();
+		if (SGraphEditor.IsValid())
+		{
+			FSlateRect Bounds;
+			if (SGraphEditor->GetBoundsForSelectedNodes(Bounds, 50.0f))
+			{
+				CommentTemplate->SetBounds(Bounds);
+				SpawnLocation.X = CommentTemplate->NodePosX;
+				SpawnLocation.Y = CommentTemplate->NodePosY;
+			}
+			return FEdGraphSchemaAction_NewNode::SpawnNodeFromTemplate<UEdGraphNode_Comment>(ParentGraph, CommentTemplate, SpawnLocation);
+		}
+	}
+
+	
+
+	return nullptr;
 }

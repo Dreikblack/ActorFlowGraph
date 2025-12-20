@@ -5,6 +5,7 @@
 #include "TutorialMetaData.h"
 #include "SLevelOfDetailBranchNode.h"
 #include "GraphEditorSettings.h"
+#include "SCommentBubble.h"
 
 #define LOCTEXT_NAMESPACE "SActorFlowGraphNode"
 
@@ -131,6 +132,35 @@ void SActorFlowGraphNode::UpdateGraphNode()
 	FGraphNodeMetaData TagMeta(TEXT("Graphnode"));
 	PopulateMetaTag(&TagMeta);
 
+	if (GraphNode && GraphNode->SupportsCommentBubble())
+	{
+		// Create comment bubble
+		TSharedPtr<SCommentBubble> CommentBubble;
+		const FSlateColor CommentColor = GetDefault<UGraphEditorSettings>()->DefaultCommentNodeTitleColor;
+
+		SAssignNew(CommentBubble, SCommentBubble)
+			.GraphNode(GraphNode)
+			.Text(this, &SGraphNode::GetNodeComment)
+			.OnTextCommitted(this, &SGraphNode::OnCommentTextCommitted)
+			.OnToggled(this, &SGraphNode::OnCommentBubbleToggled)
+			.ColorAndOpacity(CommentColor)
+			.AllowPinning(true)
+			.EnableTitleBarBubble(true)
+			.EnableBubbleCtrls(true)
+			.GraphLOD(this, &SGraphNode::GetCurrentLOD)
+			.IsGraphNodeHovered(this, &SGraphNode::IsHovered);
+
+		GetOrAddSlot(ENodeZone::TopCenter)
+			.SlotOffset2f(TAttribute<FVector2f>(CommentBubble.Get(), &SCommentBubble::GetOffset2f))
+			.SlotSize2f(TAttribute<FVector2f>(CommentBubble.Get(), &SCommentBubble::GetSize2f))
+			.AllowScaling(TAttribute<bool>(CommentBubble.Get(), &SCommentBubble::IsScalingAllowed))
+			.VAlign(VAlign_Top)
+			[
+				CommentBubble.ToSharedRef()
+			];
+	}
+
+
 	//Pin part (Separated by Actor/Component Blocks
 	TSharedPtr<SVerticalBox> MainVerticalBox;
 	this->ContentScale.Bind(this, &SGraphNode::GetContentScale);
@@ -152,7 +182,7 @@ void SActorFlowGraphNode::UpdateGraphNode()
 		];
 
 	UActorFlowEdGraphNode* Node = CastChecked<UActorFlowEdGraphNode>(GraphNode);
-
+	check(Node);
 
 	TMap<FName, TArray<UEdGraphPin*>> pinMap;
 	for (UEdGraphPin* pin : Node->Pins)
