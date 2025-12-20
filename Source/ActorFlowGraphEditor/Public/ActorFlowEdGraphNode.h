@@ -38,7 +38,9 @@ class ACTORFLOWGRAPHEDITOR_API UActorFlowEdGraphNode : public UEdGraphNode
 
 protected:
 	virtual TSharedPtr<SGraphNode> CreateVisualWidget() override;
-	void CreateAttachAddOnSubMenu(UToolMenu* Menu, bool bIsInput);
+	void CreateFunctionPinSubMenu(UToolMenu* Menu, bool bIsInput);
+	void CreateFlowComponentSubMenu(UToolMenu* Menu);
+	virtual void AddFlowComponent(UClass* InComponentClass);
 public:
 	UPROPERTY()
 	FName ActorName;

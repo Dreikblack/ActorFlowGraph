@@ -125,7 +125,7 @@ void UActorFlowGraphSchema::BreakPinLinks(UEdGraphPin& TargetPin, bool bSendsNod
 	Super::BreakPinLinks(TargetPin, bSendsNodeNotifcation);
 }
 
-void UActorFlowGraphSchema::CreatePins(UClass* InCls, FName InOwnerName, UActorFlowEdGraphNode* Node)
+void UActorFlowGraphSchema::CreatePins(UClass* InCls, FName InOwnerName, UActorFlowEdGraphNode* Node, bool bDoCheckIfExist)
 {
 	FString OutputsString = InCls->GetMetaData(TEXT("FlowOutputs"));
 
@@ -135,15 +135,39 @@ void UActorFlowGraphSchema::CreatePins(UClass* InCls, FName InOwnerName, UActorF
 	for (FString& Out : Outputs)
 	{
 		Out = Out.TrimStartAndEnd();
-		CreatePin(Node, FName(*Out), InOwnerName, false);
+		FName PinName = FName(*Out);
+		bool bDoCreate = true;
+		if (bDoCheckIfExist)
+		{
+			UEdGraphPin* FoundPin = Node->FindPinByPredicate([PinName, InOwnerName](const UEdGraphPin* Pin)
+				{
+					return Pin->GetFName() == PinName && Pin->GetPrimaryTerminalType().TerminalSubCategory == InOwnerName && Pin->Direction == EGPD_Output;
+				});
+			bDoCreate = !FoundPin;
+		}
+		
+		if (bDoCreate)
+		{
+			CreatePin(Node, FName(*Out), InOwnerName, false);
+		}
 	}
 
 	for (TFieldIterator<UFunction> It(InCls, EFieldIterationFlags::IncludeSuper); It; ++It)
 	{
 		UFunction* Func = *It;
-		if (Func->HasMetaData(TEXT("FlowInput")))
+		FName PinName = Func->GetFName();
+		bool bDoCreate = true;
+		if (bDoCheckIfExist)
 		{
-			CreatePin(Node, Func->GetFName(), InOwnerName, true);
+			UEdGraphPin* FoundPin = Node->FindPinByPredicate([PinName, InOwnerName](const UEdGraphPin* Pin)
+				{
+					return Pin->GetFName() == PinName && Pin->GetPrimaryTerminalType().TerminalSubCategory == InOwnerName && Pin->Direction == EGPD_Input;
+				});
+			bDoCreate = !FoundPin;
+		}
+		if (bDoCreate && Func->HasMetaData(TEXT("FlowInput")))
+		{
+			CreatePin(Node, PinName, InOwnerName, true);
 		}
 	}
 }

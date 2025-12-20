@@ -12,8 +12,8 @@ class ACTORFLOWGRAPHEDITOR_API FActorFlowGraphEditorModule : public FDefaultModu
 private:
 	TArray<UClass*> CachedFlowComponents;
 
-	void OnEditorSelectionChanged(UObject* NewSelection);
-	void OnActorDeleted(AActor* DeletedActor);
+	virtual void OnEditorSelectionChanged(UObject* NewSelection);
+	virtual void OnActorDeleted(AActor* DeletedActor);
 public:
 	static EAssetTypeCategories::Type ActorFlowGraphAssetCategory;
 	TArray<TSharedPtr<IAssetTypeActions>> RegisteredAssetTypeActions;
@@ -23,5 +23,5 @@ public:
 	{
 		return CachedFlowComponents;
 	}
-	void RebuildFlowComponentsCache();
+	virtual void RebuildFlowComponentsCache();
 };

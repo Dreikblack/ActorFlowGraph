@@ -8,6 +8,7 @@
 #include "SFunctionPickerWidget.h"
 #include "ActorFlowGraphSchema.h"
 #include "EdGraph/EdGraphPin.h"
+#include "ActorFlowGraphEditorModule.h"
 
 #define LOCTEXT_NAMESPACE "ActorFlowGraphNode"
 
@@ -30,17 +31,17 @@ FText UActorFlowEdGraphNode::GetNodeTitle(ENodeTitleType::Type TitleType) const
 
 bool UActorFlowEdGraphNode::CanUserDeleteNode() const
 {
-    return true;
+	return true;
 }
 
 bool UActorFlowEdGraphNode::CanDuplicateNode() const
 {
-    return false;
+	return false;
 }
 
 bool UActorFlowEdGraphNode::IncludeParentNodeContextMenu() const
 {
-    return true;
+	return true;
 }
 
 void UActorFlowEdGraphNode::GetNodeContextMenuActions(UToolMenu* Menu, UGraphNodeContextMenuContext* Context) const
@@ -78,7 +79,6 @@ void UActorFlowEdGraphNode::GetNodeContextMenuActions(UToolMenu* Menu, UGraphNod
 							Node->ReconstructNode();
 							Node->GetGraph()->NotifyGraphChanged();
 						}
-
 					})
 			)
 		);
@@ -91,13 +91,55 @@ void UActorFlowEdGraphNode::GetNodeContextMenuActions(UToolMenu* Menu, UGraphNod
 		"AddInputPin",
 		NSLOCTEXT("Flow", "AddFunctionPin", "Add Input Pin"),
 		NSLOCTEXT("Flow", "AddFunctionPin_Tooltip", "Add output pin based on function"),
-		FNewToolMenuDelegate::CreateUObject(NonConstThis, &UActorFlowEdGraphNode::CreateAttachAddOnSubMenu, true)
-    );
+		FNewToolMenuDelegate::CreateUObject(NonConstThis, &UActorFlowEdGraphNode::CreateFunctionPinSubMenu, true)
+	);
+
 	Section.AddSubMenu(
 		"AddOutputPin",
 		NSLOCTEXT("Flow", "AddFunctionPin", "Add Output Pin"),
 		NSLOCTEXT("Flow", "AddFunctionPin_Tooltip", "Add output pin based on function"),
-		FNewToolMenuDelegate::CreateUObject(NonConstThis, &UActorFlowEdGraphNode::CreateAttachAddOnSubMenu, false)
+		FNewToolMenuDelegate::CreateUObject(NonConstThis, &UActorFlowEdGraphNode::CreateFunctionPinSubMenu, false)
+	);
+	TWeakObjectPtr<UActorFlowEdGraphNode> WeakNode = const_cast<UActorFlowEdGraphNode*>(Cast<UActorFlowEdGraphNode>(Context->Node.Get()));
+
+	Section.AddMenuEntry(
+		FName("AddFlowPins"),
+		FText::FromString("Add Flow Pins"),
+		FText::FromString("Add Pins from meta"),
+		FSlateIcon(),
+		FUIAction(FExecuteAction::CreateLambda([this, WeakNode]()
+			{
+				if (UActorFlowGraphSchema* Schema = Cast<UActorFlowGraphSchema>(GetMutableDefault<UEdGraphSchema>(GetGraph()->Schema)))
+				{
+					if (AActor* ActorObject = Cast<AActor>(Actor.ResolveObject()))
+					{
+						if (UActorFlowEdGraphNode* Node = WeakNode.Get())
+						{
+							const FScopedTransaction Transaction(FText::FromString("Add Flow Pin"));
+
+							Node->Modify();
+							Node->ReconstructNode();
+							GetGraph()->NotifyGraphChanged();
+
+							Schema->CreatePins(ActorObject->GetClass(), ActorObject->GetFName(), Node, true);
+
+							for (UActorComponent* Component : ActorObject->GetComponents())
+							{
+								Schema->CreatePins(Component->GetClass(), Component->GetFName(), Node, true);
+							}
+						}
+						
+					}
+				}
+
+			}))
+	);
+
+	Section.AddSubMenu(
+		"AddFlowComponent",
+		NSLOCTEXT("Flow", "AddFlowComponent", "Add Logical Component"),
+		NSLOCTEXT("Flow", "AddFlowComponent_Tooltip", "Add Logical Flow Component to Actor"),
+		FNewToolMenuDelegate::CreateUObject(NonConstThis, &UActorFlowEdGraphNode::CreateFlowComponentSubMenu)
 	);
 
 	const FGenericCommands& GenericCommands = FGenericCommands::Get();
@@ -105,25 +147,18 @@ void UActorFlowEdGraphNode::GetNodeContextMenuActions(UToolMenu* Menu, UGraphNod
 }
 
 
-void UActorFlowEdGraphNode::CreateAttachAddOnSubMenu(UToolMenu* Menu, bool bIsInput)
+void UActorFlowEdGraphNode::CreateFunctionPinSubMenu(UToolMenu* Menu, bool bIsInput)
 {
 	FToolMenuSection& SubSection = Menu->AddSection("OwnerList", NSLOCTEXT("Flow", "OwnerList", "Actor/Components"));
-	TArray<FName> FNames;
 
 	TArray<UObject*> Owners;
-	if (AActor* ActorObject = Cast<AActor>(Actor.ResolveObject())) {
+	if (AActor* ActorObject = Cast<AActor>(Actor.ResolveObject()))
+	{
 		Owners.Add(ActorObject);
 		for (UActorComponent* Component : ActorObject->GetComponents())
 		{
 			Owners.Add(Component);
 		}
-		/*for (FComponentReference ComponentReference : Components)
-		{
-			if (UActorComponent* ActorComponent = Cast<UActorComponent>(ComponentReference.GetComponent(ActorObject)))
-			{
-				Owners.Add(ActorComponent);
-			}
-		}*/
 	}
 
 
@@ -185,6 +220,65 @@ void UActorFlowEdGraphNode::CreateAttachAddOnSubMenu(UToolMenu* Menu, bool bIsIn
 	}
 }
 
+void UActorFlowEdGraphNode::CreateFlowComponentSubMenu(UToolMenu* Menu)
+{
+	FToolMenuSection& SubSection = Menu->AddSection("FlowComponentList", NSLOCTEXT("Flow", "FlowComponentList", "Logical Flow Components"));
+
+	FActorFlowGraphEditorModule& Module = FModuleManager::LoadModuleChecked<FActorFlowGraphEditorModule>("ActorFlowGraphEditor");
+
+	const TArray<UClass*>& CachedFlowComponents = Module.GetFlowComponentClasses();
+
+	for (UClass* ComponentClass : CachedFlowComponents)
+	{
+		SubSection.AddMenuEntry(
+			ComponentClass->GetFName(),
+			FText::FromString(FName::NameToDisplayString(ComponentClass->GetName(), false)),
+			FText::FromString("Add component to actor of this node"),
+			FSlateIcon(),
+			FUIAction(FExecuteAction::CreateLambda([this, ComponentClass]()
+				{
+					AddFlowComponent(ComponentClass);
+				})
+			)
+		);
+	}
+	
+}
+
+void UActorFlowEdGraphNode::AddFlowComponent(UClass* InComponentClass)
+{
+	if (AActor* ActorObject = Cast<AActor>(Actor.ResolveObject()))
+	{
+		const FScopedTransaction Transaction(FText::FromString("Add Flow Component to Node's Actor"));
+		UWorld* World = GEditor->GetEditorWorldContext().World();
+		check(World);
+
+		ActorObject->Modify();
+		FName UniqueName = MakeUniqueObjectName(
+			World,
+			InComponentClass
+		);
+		UActorComponent* Component = NewObject<UActorComponent>(
+			ActorObject,
+			InComponentClass,
+			UniqueName,
+			RF_Transactional | RF_Public
+		);
+
+		Component->Modify();
+		Component->bAutoActivate = true;
+		Component->RegisterComponent();
+		ActorObject->AddInstanceComponent(Component);
+
+		Modify();
+		UActorFlowGraphSchema* Schema = Cast<UActorFlowGraphSchema>(GetMutableDefault<UEdGraphSchema>(GetGraph()->Schema));
+		Schema->CreatePins(Component->GetClass(), Component->GetFName(), this, true);
+	
+		ReconstructNode();
+		GetGraph()->NotifyGraphChanged();
+	}
+}
+
 void UActorFlowEdGraphNode::AddFunctionPin(TStrongObjectPtr<UObject> InObject, FName FunctionName, bool bIsInput)
 {
 	UActorFlowGraphSchema* Schema = Cast<UActorFlowGraphSchema>(GetMutableDefault<UEdGraphSchema>(GetGraph()->Schema));
@@ -199,6 +293,8 @@ void UActorFlowEdGraphNode::AddFunctionPin(TStrongObjectPtr<UObject> InObject, F
 		{
 			return;
 		}
+		const FScopedTransaction Transaction(FText::FromString("Add Function Pin"));
+
 		Modify();
 		Schema->CreatePin(this, FunctionName, OwnerName, bIsInput);
 		ReconstructNode();

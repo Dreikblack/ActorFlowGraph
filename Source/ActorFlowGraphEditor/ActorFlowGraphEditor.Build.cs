@@ -21,7 +21,8 @@ public class ActorFlowGraphEditor : ModuleRules
             "ToolMenus",
             "KismetWidgets",
             "Projects",
-            "EditorFramework"
+            "EditorFramework",
+            "LiveCoding"
         });
     }
 }

@@ -6,6 +6,7 @@
 #include "Selection.h"
 #include "ActorFlowGraphAssetEditor.h"
 #include "ActorFlowEditorStyle.h"
+#include "ILiveCodingModule.h"
 
 IMPLEMENT_MODULE(FActorFlowGraphEditorModule, ActorFlowGraphEditor);
 
@@ -37,6 +38,17 @@ void FActorFlowGraphEditorModule::StartupModule()
         );
     }
     RebuildFlowComponentsCache();
+
+    if (FModuleManager::Get().IsModuleLoaded("LiveCoding"))
+    {
+        ILiveCodingModule& LiveCodingModule =
+            FModuleManager::LoadModuleChecked<ILiveCodingModule>("LiveCoding");
+
+        LiveCodingModule.GetOnPatchCompleteDelegate().AddRaw(
+            this,
+            &FActorFlowGraphEditorModule::RebuildFlowComponentsCache
+        );
+    }
 }
 
 void FActorFlowGraphEditorModule::ShutdownModule()
@@ -126,7 +138,4 @@ void FActorFlowGraphEditorModule::OnActorDeleted(AActor* DeletedActor)
 
         }
     }
-
-
 }
-
