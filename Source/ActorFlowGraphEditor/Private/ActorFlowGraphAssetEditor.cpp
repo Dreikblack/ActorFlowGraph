@@ -7,6 +7,7 @@
 #include "SActorFlowGraphEditor.h"
 #include "ActorFlowGraphRuntime.h"
 #include "ActorFlowEdGraph.h"
+#include "SActorFlowPalette.h"
 
 
 #define LOCTEXT_NAMESPACE "ActorFlowGraphAssetEditor"
@@ -14,6 +15,7 @@
 
 const FName FActorFlowGraphAssetEditor::GraphTabID(TEXT("ActorFlowNode_GraphTab"));
 const FName FActorFlowGraphAssetEditor::DetailsTabID(TEXT("ActorFlowNode_DetailsTab"));
+const FName FActorFlowGraphAssetEditor::PaletteTabID(TEXT("ActorFlowNode_PaletteTab"));
 
 FActorFlowGraphAssetEditor::FActorFlowGraphAssetEditor()
 {
@@ -96,7 +98,7 @@ void FActorFlowGraphAssetEditor::InitActorFlowAssetEditor(
 )
 {
 	Graph = InGraph;
-	//Graph->Schema = UActorFlowGraphSchema::StaticClass();
+
 	GraphAsset = InGraphAsset;
 	GraphAsset->SetFlags(RF_Transactional);
 	GEditor->RegisterForUndo(this);
@@ -112,10 +114,18 @@ void FActorFlowGraphAssetEditor::InitActorFlowAssetEditor(
 
 	DetailsView = PropModule.CreateDetailView(Args);
 
-	const TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("ActorFlowEditor_Layout_v1")
+	Palette = SNew(SActorFlowPalette).Graph(Graph);
+
+	const TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("ActorFlowEditor_Layout_v2")
 		->AddArea
 		(
 			FTabManager::NewPrimaryArea()->SetOrientation(Orient_Horizontal)	
+			->Split
+			(
+				FTabManager::NewStack()
+				->SetSizeCoefficient(0.225f)
+				->AddTab(PaletteTabID, ETabState::OpenedTab)
+			)
 			->Split
 			(
 				FTabManager::NewStack()
@@ -156,6 +166,12 @@ void FActorFlowGraphAssetEditor::RegisterTabSpawners(const TSharedRef<FTabManage
 		.SetDisplayName(LOCTEXT("DetailsTab", "Details"))
 		.SetGroup(WorkspaceMenuCategory.ToSharedRef())
 		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.Tabs.Details"));
+
+	InTabManager->RegisterTabSpawner(PaletteTabID, FOnSpawnTab::CreateSP(this, &FActorFlowGraphAssetEditor::SpawnPaletteTab))
+		.SetDisplayName(LOCTEXT("PaletteTab", "Palette"))
+		.SetGroup(WorkspaceMenuCategory.ToSharedRef())
+		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.Tabs.Palette"));
+	
 }
 
 void FActorFlowGraphAssetEditor::UnregisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
@@ -194,6 +210,17 @@ TSharedRef<SDockTab> FActorFlowGraphAssetEditor::SpawnDetailsTab(const FSpawnTab
 		];
 }
 
+TSharedRef<SDockTab> FActorFlowGraphAssetEditor::SpawnPaletteTab(const FSpawnTabArgs& Args)
+{
+	check(Args.GetTabId() == PaletteTabID);
+
+	return SNew(SDockTab)
+		.Label(LOCTEXT("ActorFlowPaletteTitle", "Palette"))
+		[
+			Palette.ToSharedRef()
+		];
+}
+
 void FActorFlowGraphAssetEditor::OnDropActors(const TArray< TWeakObjectPtr<AActor> >& Actors, UEdGraph* InGraph, const FVector2f& DropLocation)
 {
 	if (UEdGraph* EdGraph = InGraph)
@@ -221,11 +248,11 @@ void FActorFlowGraphAssetEditor::OnDropActors(const TArray< TWeakObjectPtr<AActo
 	}
 }
 
-void FActorFlowGraphAssetEditor::CreateNodeFromActor(UEdGraph* InGraph, AActor* Actor, const FVector2f& Position)
+UActorFlowEdGraphNode* FActorFlowGraphAssetEditor::CreateNodeFromActor(UEdGraph* InGraph, AActor* Actor, const FVector2f& Position)
 {
 	if (!InGraph || !Actor)
 	{
-		return;
+		return nullptr;
 	}
 	//don't add node, if already have one for this actor in this graph
 	for (UEdGraphNode* EdNode : Graph->Nodes)
@@ -233,7 +260,7 @@ void FActorFlowGraphAssetEditor::CreateNodeFromActor(UEdGraph* InGraph, AActor* 
 		UActorFlowEdGraphNode* FoundNode = Cast<UActorFlowEdGraphNode>(EdNode);
 		if (FoundNode && FoundNode->Actor == FSoftObjectPath(Actor))
 		{
-			return;
+			return nullptr;
 		}
 	}
 
@@ -260,6 +287,7 @@ void FActorFlowGraphAssetEditor::CreateNodeFromActor(UEdGraph* InGraph, AActor* 
 	}
 
 	InGraph->AddNode(NewNode, true);
+	return NewNode;
 }
 
 void FActorFlowGraphAssetEditor::SelectNode(AActor* Actor)

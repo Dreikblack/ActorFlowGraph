@@ -1,7 +1,8 @@
 #include "ActorFlowGraphSchema.h"
 #include "ActorFlowEdGraphNode.h"
 #include "ActorFlowConnectionDrawingPolicy.h"
-
+#include "ActorFlowSchemaActions.h"
+#include "ActorFlowGraphEditorModule.h"
 
 #define LOCTEXT_NAMESPACE "ActorFlowGraph"
 
@@ -142,7 +143,7 @@ void UActorFlowGraphSchema::CreatePins(UClass* InCls, FName InOwnerName, UActorF
 		UFunction* Func = *It;
 		if (Func->HasMetaData(TEXT("FlowInput")))
 		{
-			CreatePin(Node, Func->GetFName(), InOwnerName, false);
+			CreatePin(Node, Func->GetFName(), InOwnerName, true);
 		}
 	}
 }
@@ -166,6 +167,27 @@ FConnectionDrawingPolicy* UActorFlowGraphSchema::CreateConnectionDrawingPolicy(i
 
 void UActorFlowGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const
 {
+	if (!ContextMenuBuilder.CurrentGraph)
+	{
+		return;
+	}
+	
+	FActorFlowGraphEditorModule& Module = FModuleManager::LoadModuleChecked<FActorFlowGraphEditorModule>("ActorFlowGraphEditor");
+
+	const TArray<UClass*>& CachedFlowComponents = Module.GetFlowComponentClasses();
+
+	for (UClass* ComponentClass : CachedFlowComponents)
+	{
+		ContextMenuBuilder.AddAction(
+			MakeShared<FActorFlowSchemaAction_NewNode>(
+				FText::FromString("Components"),
+				FText::FromString(FName::NameToDisplayString(ComponentClass->GetName(), false)),
+				FText::FromString("Add Actor with this Component"),
+				0,
+				ComponentClass
+			)
+		);
+	}
 }
 
 void UActorFlowGraphSchema::GetContextMenuActions(UToolMenu* Menu, UGraphNodeContextMenuContext* Context) const

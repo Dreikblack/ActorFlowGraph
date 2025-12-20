@@ -4,7 +4,8 @@
 
 class SActorFlowGraphEditor;
 class IDetailsView;
-
+class SActorFlowPalette;
+class UActorFlowEdGraphNode;
 
 class ACTORFLOWGRAPHEDITOR_API FActorFlowGraphAssetEditor : public FAssetEditorToolkit, public FEditorUndoClient, public FGCObject
 {
@@ -21,6 +22,7 @@ public:
 	// Tabs
 	static const FName GraphTabID;
 	static const FName DetailsTabID;
+	static const FName PaletteTabID;
 
 	// IToolkit
 
@@ -43,20 +45,22 @@ public:
 protected:
 	TSharedPtr<FUICommandList> CommandList;
 	TSharedPtr<class IDetailsView> DetailsView;
+	TSharedPtr<class SActorFlowPalette> Palette;
 
 	virtual void RegisterTabSpawners(const TSharedRef<FTabManager>& TabManager) override;
 	virtual void UnregisterTabSpawners(const TSharedRef<FTabManager>& TabManager) override;
 
 	TSharedRef<SDockTab> SpawnGraphTab(const FSpawnTabArgs& Args);
 	TSharedRef<SDockTab> SpawnDetailsTab(const FSpawnTabArgs& Args);
+	TSharedRef<SDockTab> SpawnPaletteTab(const FSpawnTabArgs& Args);
 private:
 	FDelegateHandle GraphChangeListenerHandle;
 	TSharedPtr<SActorFlowGraphEditor> GraphEditorWidget;
 	void OnDropActors(const TArray< TWeakObjectPtr<AActor> >& Actors, UEdGraph* Graph, const FVector2f& DropLocation);
-	void CreateNodeFromActor(UEdGraph* Graph, AActor* Actor, const FVector2f& Position);
 public:
 	UEdGraph* Graph = nullptr;
 	UActorFlowGraphAsset* GraphAsset = nullptr;
 	void SelectNode(AActor* Actor);
 	void DeleteNodesByActor(AActor* InDeletedActor);
+	UActorFlowEdGraphNode* CreateNodeFromActor(UEdGraph* Graph, AActor* Actor, const FVector2f& Position);
 };

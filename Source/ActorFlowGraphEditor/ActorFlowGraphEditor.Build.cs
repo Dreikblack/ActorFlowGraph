@@ -20,7 +20,8 @@ public class ActorFlowGraphEditor : ModuleRules
             "BlueprintGraph",
             "ToolMenus",
             "KismetWidgets",
-            "Projects"
+            "Projects",
+            "EditorFramework"
         });
     }
 }

@@ -10,6 +10,8 @@ class IAssetTypeActions;
 class ACTORFLOWGRAPHEDITOR_API FActorFlowGraphEditorModule : public FDefaultModuleImpl
 {
 private:
+	TArray<UClass*> CachedFlowComponents;
+
 	void OnEditorSelectionChanged(UObject* NewSelection);
 	void OnActorDeleted(AActor* DeletedActor);
 public:
@@ -17,4 +19,9 @@ public:
 	TArray<TSharedPtr<IAssetTypeActions>> RegisteredAssetTypeActions;
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
+	const TArray<UClass*>& GetFlowComponentClasses() const
+	{
+		return CachedFlowComponents;
+	}
+	void RebuildFlowComponentsCache();
 };

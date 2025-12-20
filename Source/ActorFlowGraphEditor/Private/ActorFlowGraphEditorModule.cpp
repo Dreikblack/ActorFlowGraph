@@ -36,7 +36,7 @@ void FActorFlowGraphEditorModule::StartupModule()
             &FActorFlowGraphEditorModule::OnActorDeleted
         );
     }
-
+    RebuildFlowComponentsCache();
 }
 
 void FActorFlowGraphEditorModule::ShutdownModule()
@@ -50,6 +50,25 @@ void FActorFlowGraphEditorModule::ShutdownModule()
         }
     }
     RegisteredAssetTypeActions.Empty();
+}
+
+void FActorFlowGraphEditorModule::RebuildFlowComponentsCache()
+{
+    CachedFlowComponents.Reset();
+
+    for (TObjectIterator<UClass> It; It; ++It)
+    {
+        UClass* Class = *It;
+
+        if (!Class->IsChildOf(UActorComponent::StaticClass()) 
+            || Class->HasAnyClassFlags(CLASS_Abstract | CLASS_Deprecated | CLASS_NewerVersionExists)
+            || !Class->HasMetaData(TEXT("FlowComponent")))
+        {
+            continue;
+        }
+
+        CachedFlowComponents.Add(Class);
+    }
 }
 
 void FActorFlowGraphEditorModule::OnEditorSelectionChanged(UObject* NewSelection)

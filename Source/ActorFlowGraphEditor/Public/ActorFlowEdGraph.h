@@ -7,6 +7,8 @@
 
 #include "ActorFlowEdGraph.generated.h"
 
+class UActorFlowGraphAsset;
+
 UCLASS()
 class ACTORFLOWGRAPHEDITOR_API UActorFlowEdGraph : public UEdGraph
 {
@@ -15,4 +17,5 @@ class ACTORFLOWGRAPHEDITOR_API UActorFlowEdGraph : public UEdGraph
 public:
     FGraphSplineOverlapResult SplineOverlapResult;
     FGuidPair SelectedConnection;
+    UActorFlowGraphAsset* GetAsset() const;
 };
