@@ -21,8 +21,12 @@ protected:
 	TMap<FGuid, FActorFlowNode*> IdNodeMap;
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	UFUNCTION(BlueprintCallable)
 	void InitFlowGraphs(TArray<UActorFlowGraphRuntime*> InGraphAssets);
+
 	virtual void Deinitialize() override;
 
+	UFUNCTION(BlueprintCallable)
 	void Emit(UObject* Sender, FName PinName);
 };

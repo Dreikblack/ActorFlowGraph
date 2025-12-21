@@ -40,6 +40,30 @@ void SFunctionPickerWidget::Construct(const FArguments& InArgs)
 		[
 			SNew(SVerticalBox)
 
+				// Custom Pin
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SHorizontalBox)
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(4)
+						[
+							SAssignNew(CustomPinTextBox, SEditableTextBox)
+								.HintText(FText::FromString(TEXT("Enter Custom Pin Name")))
+						]
+
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(5.0f)
+						[
+							SNew(SButton)
+								.Text(FText::FromString(TEXT("Make Custom Pin")))
+								.OnClicked(this, &SFunctionPickerWidget::OnCustomPinButtonClicked)
+						]
+				]
+
+			    //Filter array
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				[
@@ -58,7 +82,7 @@ void SFunctionPickerWidget::Construct(const FArguments& InArgs)
 						.OnTextChanged(this, &SFunctionPickerWidget::OnSearchChanged)
 				]
 
-				// List
+				// Function List
 				+ SVerticalBox::Slot()
 				.FillHeight(1.f)
 				[
@@ -92,7 +116,7 @@ void SFunctionPickerWidget::BuildFunctionList(UClass* TargetClass)
 	{
 		UFunction* Func = *It;
 
-		if (Func->HasAnyFunctionFlags(FUNC_BlueprintCallable) && Func->HasAnyFunctionFlags(FUNC_Public))
+		if (Func->HasAnyFunctionFlags(FUNC_BlueprintCallable))
 		{
 			FName Category = NAME_None;
 			if (Func->HasMetaData(TEXT("Category")))
@@ -160,6 +184,20 @@ FString SFunctionPickerWidget::BuildFunctionSignature(UFunction* Func)
 		*Func->GetName(),
 		*FString::Join(Params, TEXT(", "))
 	);
+}
+
+FReply SFunctionPickerWidget::OnCustomPinButtonClicked()
+{
+	if (CustomPinTextBox.IsValid())
+	{
+		FText EnteredText = CustomPinTextBox->GetText();
+		if (OnFunctionPicked.IsBound())
+		{
+			OnFunctionPicked.Execute(FName(*EnteredText.ToString()));
+		}
+	}
+
+	return FReply::Handled();
 }
 
 void SFunctionPickerWidget::OnSearchChanged(const FText& Text)

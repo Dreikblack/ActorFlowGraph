@@ -121,7 +121,7 @@ void FActorFlowGraphEditorModule::OnEditorSelectionChanged(UObject* NewSelection
 
 void FActorFlowGraphEditorModule::OnActorDeleted(AActor* DeletedActor)
 {
-    if (!DeletedActor)
+    if (!DeletedActor || !GEditor || GEditor->PlayWorld)
     {
         return;
     }

@@ -68,6 +68,8 @@ private:
 
 	TSharedPtr<IDetailsView> DetailsView;
 
+	TSharedPtr<SEditableTextBox> CustomPinTextBox;
+
 	FText SearchText;
 
 	void OnSearchChanged(const FText& Text);
@@ -82,4 +84,6 @@ private:
 	void BuildFunctionList(UClass* TargetClass);
 
 	static FString BuildFunctionSignature(UFunction* Func);
+
+	FReply OnCustomPinButtonClicked();
 };
