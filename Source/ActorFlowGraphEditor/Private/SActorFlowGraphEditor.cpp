@@ -25,7 +25,7 @@ void SActorFlowGraphEditor::Construct(const FArguments& InArgs, const TSharedPtr
 	{
 		CornerText = CornerText + " (" + FlowAsset->LevelName.ToString() + ")";
 	}
-	FGraphAppearanceInfo AppearanceInfo; 
+	FGraphAppearanceInfo AppearanceInfo;
 	AppearanceInfo.CornerText = FText::FromString(CornerText);
 	Arguments._Appearance = AppearanceInfo;
 	Arguments._GraphToEdit = FlowAsset->EdGraph;
@@ -122,23 +122,31 @@ void SActorFlowGraphEditor::OnSelectedNodesChanged(const TSet<UObject*>& Nodes)
 	{
 		return;
 	}
+	TArray<UObject*> ObjectsToSelect;
+
 	TGuardValue<bool> Guard(bSelectionSyncInProgress, true);
 	for (UObject* Object : Nodes)
 	{
 		if (const UActorFlowEdGraphNode* Node = Cast<UActorFlowEdGraphNode>(Object))
 		{
 			if (AActor* Actor = Cast<AActor>(Node->Actor.ResolveObject()))
+			{
+				ObjectsToSelect.Add(Actor);
 				if (GEditor && !Actor->IsSelectedInEditor())
 				{
 					GEditor->SelectNone(false, true);
 					GEditor->SelectActor(Actor, true, true, true);
 				}
-		} 
+			}
+		}
 		else if (UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(Object))
 		{
-			DetailsView->SetObject(CommentNode);
+			ObjectsToSelect.Add(CommentNode);
 		}
-
+	}
+	if (!ObjectsToSelect.IsEmpty())
+	{
+		DetailsView->SetObjects(ObjectsToSelect);
 	}
 }
 

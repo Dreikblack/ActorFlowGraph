@@ -104,8 +104,8 @@ void UActorFlowEdGraphNode::GetNodeContextMenuActions(UToolMenu* Menu, UGraphNod
 
 	Section.AddMenuEntry(
 		FName("AddFlowPins"),
-		FText::FromString("Add Flow Pins"),
-		FText::FromString("Add Pins from meta"),
+		FText::FromString("Reconstruct Flow Pins"),
+		FText::FromString("Add missing Pins from meta"),
 		FSlateIcon(),
 		FUIAction(FExecuteAction::CreateLambda([this, WeakNode]()
 			{
@@ -300,6 +300,11 @@ void UActorFlowEdGraphNode::AddFunctionPin(TStrongObjectPtr<UObject> InObject, F
 		ReconstructNode();
 		GetGraph()->NotifyGraphChanged();
 	}
+}
+
+FLinearColor UActorFlowEdGraphNode::GetNodeBodyTintColor() const
+{
+	return FLinearColor(0.5f, 0.5f, 0.5f, 0.8f);
 }
 
 

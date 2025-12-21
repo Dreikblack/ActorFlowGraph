@@ -13,9 +13,6 @@ void SActorFlowGraphNode::Construct(const FArguments& InArgs, UActorFlowEdGraphN
 {
 	GraphNode = InNode;
 
-	//ActorFlowGraphNode->OnSignalModeChanged.BindRaw(this, &SActorFlowGraphNode::UpdateGraphNode);
-	//ActorFlowGraphNode->OnReconstructNodeCompleted.BindRaw(this, &SActorFlowGraphNode::UpdateGraphNode);
-
 	SetCursor(EMouseCursor::CardinalCross);
 	UpdateGraphNode();
 }
@@ -165,12 +162,42 @@ void SActorFlowGraphNode::UpdateGraphNode()
 	TSharedPtr<SVerticalBox> MainVerticalBox;
 	this->ContentScale.Bind(this, &SGraphNode::GetContentScale);
 
+	//this->GetOrAddSlot(ENodeZone::Center)
+	//	.HAlign(HAlign_Fill)
+	//	.VAlign(VAlign_Fill)
+	//	[
+	//		SNew(SBorder)
+	//			.BorderImage(FAppStyle::GetBrush("WhiteBrush"))
+	//			.BorderBackgroundColor(this, &SActorFlowGraphNode::GetNodeBodyColor)
+	//			[
+	//				SAssignNew(MainVerticalBox, SVerticalBox)
+	//			]
+	//		//SAssignNew(MainVerticalBox, SVerticalBox)
+	//	];
+
 	this->GetOrAddSlot(ENodeZone::Center)
 		.HAlign(HAlign_Fill)
 		.VAlign(VAlign_Fill)
 		[
-			SAssignNew(MainVerticalBox, SVerticalBox)
+			SNew(SOverlay)
+
+				+ SOverlay::Slot()
+				[
+					SNew(SBorder)
+						.BorderImage(FAppStyle::GetBrush("WhiteBrush"))
+						.BorderBackgroundColor(this, &SActorFlowGraphNode::GetNodeBodyColor)
+				]
+
+				+ SOverlay::Slot()
+				[
+					SNew(SBorder)
+						.BorderImage(FAppStyle::GetBrush("Graph.Node.Body"))
+						[
+							SAssignNew(MainVerticalBox, SVerticalBox)
+						]
+				]
 		];
+	
 
 	MainVerticalBox->AddSlot()
 		.AutoHeight()
@@ -209,7 +236,7 @@ void SActorFlowGraphNode::AddPinGroup(TSharedPtr<SVerticalBox> Parent,
 {
 	Parent->AddSlot()
 		.AutoHeight()
-		.Padding(0, 6)
+		.Padding(8, 6)
 		[
 			SNew(STextBlock)
 				.Text(FText::FromString(Title))
@@ -219,6 +246,7 @@ void SActorFlowGraphNode::AddPinGroup(TSharedPtr<SVerticalBox> Parent,
 
 	Parent->AddSlot()
 		.AutoHeight()
+		.Padding(8, 6)
 		[
 			SNew(SBorder)
 				.BorderImage(FAppStyle::GetBrush("Graph.Node.Body"))
