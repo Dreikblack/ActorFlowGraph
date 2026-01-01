@@ -5,7 +5,7 @@
 #include "InputCounterComponent.generated.h"
 
 
-UCLASS(ClassGroup = (Flow), meta = (BlueprintSpawnableComponent), meta = (FlowOutputs = "Output", FlowComponent))
+UCLASS(ClassGroup = (Flow), meta = (BlueprintSpawnableComponent, FlowOutputs = "Output", FlowComponent))
 class ACTORFLOWGRAPH_API UInputCounterComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -17,15 +17,15 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Counter")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flow | Counter")
 	int CurrentCount;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Counter")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flow | Counter")
 	int MaxCount;
 
-	UFUNCTION(BlueprintCallable, Category = "Counter", meta = (FlowInput))
+	UFUNCTION(BlueprintCallable, Category = "Flow | Counter", meta = (FlowInput))
 	void Input(int IncreaseBy = 1);
 
-	UFUNCTION(BlueprintCallable, Category = "Counter", meta = (FlowInput))
+	UFUNCTION(BlueprintCallable, Category = "Flow | Counter", meta = (FlowInput))
 	void SingleInput();
 };

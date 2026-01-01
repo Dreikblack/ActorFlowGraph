@@ -132,6 +132,10 @@ void SActorFlowGraphEditor::OnSelectedNodesChanged(const TSet<UObject*>& Nodes)
 			if (AActor* Actor = Cast<AActor>(Node->Actor.ResolveObject()))
 			{
 				ObjectsToSelect.Add(Actor);
+				for (UActorComponent* Component : Actor->GetComponents())
+				{
+					ObjectsToSelect.Add(Component);
+				}
 				if (GEditor && !Actor->IsSelectedInEditor())
 				{
 					GEditor->SelectNone(false, true);

@@ -110,8 +110,13 @@ void FActorFlowGraphAssetEditor::InitActorFlowAssetEditor(
 
 	FDetailsViewArgs Args;
 	Args.bHideSelectionTip = true;
-	Args.bAllowSearch = false;
-
+	Args.bAllowSearch = true;
+	Args.bShowSectionSelector = true;
+	Args.bShowLooseProperties = true;
+	Args.bAllowMultipleTopLevelObjects = true;
+	Args.bLockable = true;
+	Args.bShowObjectLabel = true;
+	
 	DetailsView = PropModule.CreateDetailView(Args);
 
 	Palette = SNew(SActorFlowPalette).Graph(Graph);
