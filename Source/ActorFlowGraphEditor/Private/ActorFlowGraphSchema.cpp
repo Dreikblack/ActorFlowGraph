@@ -128,6 +128,20 @@ void UActorFlowGraphSchema::BreakPinLinks(UEdGraphPin& TargetPin, bool bSendsNod
 void UActorFlowGraphSchema::CreatePins(UClass* InCls, FName InOwnerName, UActorFlowEdGraphNode* Node, bool bDoCheckIfExist)
 {
 	FString OutputsString = InCls->GetMetaData(TEXT("FlowOutputs"));
+	//if (OutputsString.IsEmpty() && InCls->GetSuperClass())
+	//{
+	//	OutputsString = InCls->GetSuperClass()->GetMetaData(TEXT("FlowOutputs"));
+	//}
+	UClass* Class = InCls;
+	while (Class && OutputsString.IsEmpty())
+	{
+		if (Class->HasMetaData(TEXT("FlowOutputs")))
+		{
+			OutputsString = Class->GetMetaData(TEXT("FlowOutputs"));
+			break;
+		}
+		Class = Class->GetSuperClass();
+	}
 
 	TArray<FString> Outputs;
 	OutputsString.ParseIntoArray(Outputs, TEXT(","), true);
