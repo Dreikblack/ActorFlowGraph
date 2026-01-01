@@ -1,4 +1,4 @@
-#include "SActorFlowGraphNode.h"
+#include "Widgets/SActorFlowGraphNode.h"
 #include "NodeFactory.h"
 #include "SGraphPin.h"
 #include "IDocumentation.h"

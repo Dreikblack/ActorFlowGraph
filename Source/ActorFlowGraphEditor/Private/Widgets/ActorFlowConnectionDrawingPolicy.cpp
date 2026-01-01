@@ -1,7 +1,7 @@
-#include "ActorFlowConnectionDrawingPolicy.h"
-#include "ActorFlowGraphSchema.h"
-#include "ActorFlowEdGraph.h"
-#include "ActorFlowEdGraphNode.h"
+#include "Widgets/ActorFlowConnectionDrawingPolicy.h"
+#include "Graph/ActorFlowGraphSchema.h"
+#include "Graph/ActorFlowEdGraph.h"
+#include "Graph/ActorFlowEdGraphNode.h"
 
 FActorFlowConnectionDrawingPolicy::FActorFlowConnectionDrawingPolicy(
 	int32 InBackLayerID,

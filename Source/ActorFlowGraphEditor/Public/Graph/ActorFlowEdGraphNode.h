@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "EdGraph/EdGraphNode.h"
-#include "ActorFlowSubsystem.h"
+#include "ActorFlowGraphRuntime.h"
 #include "ActorFlowEdGraphNode.generated.h"
 
 class SSearchBox;

@@ -1,7 +1,7 @@
-#include "ActorFlowGraphSchema.h"
-#include "ActorFlowEdGraphNode.h"
-#include "ActorFlowConnectionDrawingPolicy.h"
-#include "ActorFlowSchemaActions.h"
+#include "Graph/ActorFlowGraphSchema.h"
+#include "Graph/ActorFlowEdGraphNode.h"
+#include "Widgets/ActorFlowConnectionDrawingPolicy.h"
+#include "Graph/ActorFlowSchemaActions.h"
 #include "ActorFlowGraphEditorModule.h"
 
 #define LOCTEXT_NAMESPACE "ActorFlowGraph"
@@ -20,7 +20,7 @@ const FPinConnectionResponse UActorFlowGraphSchema::CanCreateConnection(const UE
 	{
 		return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, TEXT("Same pin"));
 	}
-	else if (A->GetFName() == B->GetFName() && A->GetOwningNode() == B->GetOwningNode() 
+	else if (A->GetFName() == B->GetFName() && A->GetOwningNode() == B->GetOwningNode()
 		&& A->GetPrimaryTerminalType().TerminalSubCategory == B->GetPrimaryTerminalType().TerminalSubCategory)
 	{
 		return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, TEXT("No loops (same function in same actor/component"));

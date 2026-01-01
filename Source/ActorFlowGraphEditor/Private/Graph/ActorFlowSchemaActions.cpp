@@ -1,9 +1,9 @@
-#include "ActorFlowSchemaActions.h"
-#include "ActorFlowEdGraph.h"
-#include "ActorFlowGraphAssetEditor.h"
+#include "Graph/ActorFlowSchemaActions.h"
+#include "Graph/ActorFlowEdGraph.h"
+#include "Asset/ActorFlowGraphAssetEditor.h"
 #include "Toolkits/ToolkitManager.h"
 #include "EdGraphNode_Comment.h"
-#include "SActorFlowGraphEditor.h"
+#include "Widgets/SActorFlowGraphEditor.h"
 
 UEdGraphNode* FActorFlowSchemaAction_NewNode::PerformAction(UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode)
 {

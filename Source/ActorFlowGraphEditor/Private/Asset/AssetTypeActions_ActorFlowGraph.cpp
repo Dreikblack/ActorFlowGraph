@@ -1,10 +1,10 @@
-#include "AssetTypeActions_ActorFlowGraph.h"
-#include "ActorFlowGraphAsset.h"
-#include "ActorFlowEdGraphNode.h"
+#include "Asset/AssetTypeActions_ActorFlowGraph.h"
+#include "Asset/ActorFlowGraphAsset.h"
+#include "Graph/ActorFlowEdGraphNode.h"
 #include "ActorFlowGraphEditorModule.h"
-#include "ActorFlowGraphAssetEditor.h"
-#include "ActorFlowGraphSchema.h"
-#include "ActorFlowEdGraph.h"
+#include "Asset/ActorFlowGraphAssetEditor.h"
+#include "Graph/ActorFlowGraphSchema.h"
+#include "Graph/ActorFlowEdGraph.h"
 
 FText FAssetTypeActions_ActorFlowGraph::GetName() const
 {

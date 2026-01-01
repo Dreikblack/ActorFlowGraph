@@ -1,7 +1,8 @@
 #pragma once
 
 #include "SGraphNode.h"
-#include "ActorFlowEdGraphNode.h"
+
+class UActorFlowEdGraphNode;
 
 class ACTORFLOWGRAPHEDITOR_API SActorFlowGraphNode : public SGraphNode
 {

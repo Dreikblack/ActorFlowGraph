@@ -1,5 +1,5 @@
-#include "ActorFlowGraphPinFactory.h"
-#include "ActorFlowGraphSchema.h"
+#include "Widgets/ActorFlowGraphPinFactory.h"
+#include "Graph/ActorFlowGraphSchema.h"
 #include "KismetPins/SGraphPinExec.h"
 
 

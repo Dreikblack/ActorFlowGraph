@@ -1,11 +1,11 @@
 #pragma once
 #include "Toolkits/AssetEditorToolkit.h"
-#include "ActorFlowGraphAsset.h"
 
 class SActorFlowGraphEditor;
 class IDetailsView;
 class SActorFlowPalette;
 class UActorFlowEdGraphNode;
+class UActorFlowGraphAsset;
 
 class ACTORFLOWGRAPHEDITOR_API FActorFlowGraphAssetEditor : public FAssetEditorToolkit, public FEditorUndoClient, public FGCObject
 {

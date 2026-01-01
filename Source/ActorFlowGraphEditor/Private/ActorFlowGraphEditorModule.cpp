@@ -1,10 +1,10 @@
 #include "ActorFlowGraphEditorModule.h"
 #include "AssetToolsModule.h"
-#include "AssetTypeActions_ActorFlowGraph.h"
+#include "Asset/AssetTypeActions_ActorFlowGraph.h"
 #include "EdGraphUtilities.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Selection.h"
-#include "ActorFlowGraphAssetEditor.h"
+#include "Asset/ActorFlowGraphAssetEditor.h"
 #include "ActorFlowEditorStyle.h"
 #include "ILiveCodingModule.h"
 

@@ -1,5 +1,5 @@
-#include "InputCounterComponent.h"
-#include "ActorFlowUtils.h" 
+#include "Components/InputCounterComponent.h"
+#include "ActorFlowUtils.h"
 
 UInputCounterComponent::UInputCounterComponent()
 {

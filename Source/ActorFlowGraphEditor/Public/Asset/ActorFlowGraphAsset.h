@@ -2,12 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "ActorFlowGraphRuntime.h"
 
 #include "ActorFlowGraphAsset.generated.h"
 
 class FObjectPreSaveContext;
 class UActorFlowEdGraph;
+class UActorFlowGraphRuntime;
 
 UCLASS()
 class ACTORFLOWGRAPHEDITOR_API UActorFlowGraphAsset : public UPrimaryDataAsset {

@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Widgets/SCompoundWidget.h"
-#include "Widgets/Input/SSearchBox.h"
 #include "Widgets/Views/SListView.h"
 #include "SFunctionPickerWidget.generated.h"
 

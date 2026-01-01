@@ -2,10 +2,6 @@
 
 #include "SGraphPalette.h"
 
-
-/**
- * 
- */
 class ACTORFLOWGRAPHEDITOR_API SActorFlowPalette : public SGraphPalette
 {
 public:

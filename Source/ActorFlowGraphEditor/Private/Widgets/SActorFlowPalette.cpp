@@ -1,4 +1,4 @@
-#include "SActorFlowPalette.h"
+#include "Widgets/SActorFlowPalette.h"
 
 
 void SActorFlowPalette::Construct(const FArguments& InArgs)
