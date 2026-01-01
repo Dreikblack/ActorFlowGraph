@@ -33,7 +33,7 @@ void SActorFlowGraphEditor::Construct(const FArguments& InArgs, const TSharedPtr
 	Arguments._AutoExpandActionMenu = true;
 	Arguments._GraphEvents.OnSelectionChanged = FOnSelectionChanged::CreateSP(this, &SActorFlowGraphEditor::OnSelectedNodesChanged);
 	Arguments._GraphEvents.OnMouseButtonDown = FOnMouseButtonDown::CreateSP(this, &SActorFlowGraphEditor::OnMouseMouseButtonDown);
-
+	Arguments._GraphEvents.OnTextCommitted = FOnNodeTextCommitted::CreateSP(this, &SActorFlowGraphEditor::OnNodeTitleCommitted);
 
 	SGraphEditor::Construct(Arguments);
 }
@@ -173,6 +173,16 @@ FReply SActorFlowGraphEditor::OnMouseMouseButtonDown(const FGeometry& Geometry, 
 		ActorGraph->SelectedConnection = FGuidPair();
 	}
 	return FReply::Unhandled();
+}
+
+void SActorFlowGraphEditor::OnNodeTitleCommitted(const FText& NewText, ETextCommit::Type CommitInfo, UEdGraphNode* NodeBeingChanged)
+{
+	if (NodeBeingChanged)
+	{
+		const FScopedTransaction Transaction(LOCTEXT("RenameNode", "Rename Node"));
+		NodeBeingChanged->Modify();
+		NodeBeingChanged->OnRenameNode(NewText.ToString());
+	}
 }
 
 void SActorFlowGraphEditor::SelectNodeByActor(AActor* Actor)

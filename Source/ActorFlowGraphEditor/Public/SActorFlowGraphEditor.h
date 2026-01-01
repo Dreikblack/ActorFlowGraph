@@ -34,7 +34,7 @@ protected:
 	virtual bool CanDeleteNodes() const;
 	virtual void OnSelectedNodesChanged(const TSet<UObject*>& Nodes);
 	virtual FReply OnMouseMouseButtonDown(const FGeometry& Geometry, const FPointerEvent& PointerEvent);
-	
+	virtual void OnNodeTitleCommitted(const FText& NewText, ETextCommit::Type CommitInfo, UEdGraphNode* NodeBeingChanged);
 public:
 	static bool CanEdit();
 	virtual bool IsTabFocused() const;
