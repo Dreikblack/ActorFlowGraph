@@ -128,10 +128,6 @@ void UActorFlowGraphSchema::BreakPinLinks(UEdGraphPin& TargetPin, bool bSendsNod
 void UActorFlowGraphSchema::CreatePins(UClass* InCls, FName InOwnerName, UActorFlowEdGraphNode* Node, bool bDoCheckIfExist)
 {
 	FString OutputsString = InCls->GetMetaData(TEXT("FlowOutputs"));
-	//if (OutputsString.IsEmpty() && InCls->GetSuperClass())
-	//{
-	//	OutputsString = InCls->GetSuperClass()->GetMetaData(TEXT("FlowOutputs"));
-	//}
 	UClass* Class = InCls;
 	while (Class && OutputsString.IsEmpty())
 	{
@@ -162,7 +158,7 @@ void UActorFlowGraphSchema::CreatePins(UClass* InCls, FName InOwnerName, UActorF
 		
 		if (bDoCreate)
 		{
-			CreatePin(Node, FName(*Out), InOwnerName, false);
+			CreatePin(Node, InCls->GetFName(), FName(*Out), InOwnerName, false);
 		}
 	}
 
@@ -181,14 +177,14 @@ void UActorFlowGraphSchema::CreatePins(UClass* InCls, FName InOwnerName, UActorF
 		}
 		if (bDoCreate && Func->HasMetaData(TEXT("FlowInput")))
 		{
-			CreatePin(Node, PinName, InOwnerName, true);
+			CreatePin(Node, InCls->GetFName(), PinName, InOwnerName, true);
 		}
 	}
 }
 
-void UActorFlowGraphSchema::CreatePin(UActorFlowEdGraphNode* Node, FName PinName, FName InOwnerName, bool bIsInput)
+void UActorFlowGraphSchema::CreatePin(UActorFlowEdGraphNode* Node, FName ClassName, FName PinName, FName InOwnerName, bool bIsInput)
 {
-	auto pin = Node->CreatePin(bIsInput ? EGPD_Input : EGPD_Output, TEXT("FlowPin"), InOwnerName, PinName);
+	auto pin = Node->CreatePin(bIsInput ? EGPD_Input : EGPD_Output, ClassName, InOwnerName, PinName);
 }
 
 FConnectionDrawingPolicy* UActorFlowGraphSchema::CreateConnectionDrawingPolicy(int32 InBackLayerID, int32 InFrontLayerID, float InZoomFactor, const FSlateRect& InClippingRect, FSlateWindowElementList& InDrawElements, UEdGraph* InGraphObj) const

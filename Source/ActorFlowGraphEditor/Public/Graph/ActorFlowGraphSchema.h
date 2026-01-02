@@ -24,7 +24,7 @@ public:
     virtual void BreakPinLinks(UEdGraphPin& TargetPin, bool bSendsNodeNotifcation) const override;
 
     void CreatePins(UClass* InCls, FName InOwnerName, UActorFlowEdGraphNode* Node, bool bDoCheckIfExist = false);
-    void CreatePin(UActorFlowEdGraphNode* Node, FName PinName, FName OwnerName, bool bIsInput);
+    void CreatePin(UActorFlowEdGraphNode* Node, FName ClassName, FName PinName, FName OwnerName, bool bIsInput);
 
     virtual class FConnectionDrawingPolicy* CreateConnectionDrawingPolicy(int32 InBackLayerID, int32 InFrontLayerID, float InZoomFactor, const FSlateRect& InClippingRect, class FSlateWindowElementList& InDrawElements, class UEdGraph* InGraphObj) const override;
    

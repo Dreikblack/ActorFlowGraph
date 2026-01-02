@@ -88,6 +88,13 @@ void UActorFlowEdGraphNode::GetNodeContextMenuActions(UToolMenu* Menu, UGraphNod
 	UActorFlowEdGraphNode* NonConstThis = const_cast<UActorFlowEdGraphNode*>(this);
 
 	Section.AddSubMenu(
+		"AddFlowComponent",
+		NSLOCTEXT("Flow", "AddFlowComponent", "Add Logical Component"),
+		NSLOCTEXT("Flow", "AddFlowComponent_Tooltip", "Add Logical Flow Component to Actor"),
+		FNewToolMenuDelegate::CreateUObject(NonConstThis, &UActorFlowEdGraphNode::CreateFlowComponentSubMenu)
+	);
+
+	Section.AddSubMenu(
 		"AddInputPin",
 		NSLOCTEXT("Flow", "AddFunctionPin", "Add Input Pin"),
 		NSLOCTEXT("Flow", "AddFunctionPin_Tooltip", "Add output pin based on function"),
@@ -128,18 +135,35 @@ void UActorFlowEdGraphNode::GetNodeContextMenuActions(UToolMenu* Menu, UGraphNod
 								Schema->CreatePins(Component->GetClass(), Component->GetFName(), Node, true);
 							}
 						}
-						
+
 					}
 				}
 
 			}))
 	);
 
-	Section.AddSubMenu(
-		"AddFlowComponent",
-		NSLOCTEXT("Flow", "AddFlowComponent", "Add Logical Component"),
-		NSLOCTEXT("Flow", "AddFlowComponent_Tooltip", "Add Logical Flow Component to Actor"),
-		FNewToolMenuDelegate::CreateUObject(NonConstThis, &UActorFlowEdGraphNode::CreateFlowComponentSubMenu)
+	Section.AddMenuEntry(
+		FName("FixComponentPinsAfterRename"),
+		FText::FromString("Fix Component's Name in Node"),
+		FText::FromString("Fix Components Pins After Component Rename"),
+		FSlateIcon(),
+		FUIAction(FExecuteAction::CreateLambda([this, WeakNode]()
+			{
+				if (UActorFlowGraphSchema* Schema = Cast<UActorFlowGraphSchema>(GetMutableDefault<UEdGraphSchema>(GetGraph()->Schema)))
+				{
+					if (UActorFlowEdGraphNode* Node = WeakNode.Get())
+					{
+						const FScopedTransaction Transaction(FText::FromString("Fix Pins After Component Rename"));
+
+						Node->Modify();
+						Node->FixComponentPins();
+
+						Node->ReconstructNode();
+						GetGraph()->NotifyGraphChanged();
+					}
+				}
+
+			}))
 	);
 
 	const FGenericCommands& GenericCommands = FGenericCommands::Get();
@@ -242,7 +266,7 @@ void UActorFlowEdGraphNode::CreateFlowComponentSubMenu(UToolMenu* Menu)
 			)
 		);
 	}
-	
+
 }
 
 void UActorFlowEdGraphNode::AddFlowComponent(UClass* InComponentClass)
@@ -273,7 +297,7 @@ void UActorFlowEdGraphNode::AddFlowComponent(UClass* InComponentClass)
 		Modify();
 		UActorFlowGraphSchema* Schema = Cast<UActorFlowGraphSchema>(GetMutableDefault<UEdGraphSchema>(GetGraph()->Schema));
 		Schema->CreatePins(Component->GetClass(), Component->GetFName(), this, true);
-	
+
 		ReconstructNode();
 		GetGraph()->NotifyGraphChanged();
 	}
@@ -296,7 +320,7 @@ void UActorFlowEdGraphNode::AddFunctionPin(TStrongObjectPtr<UObject> InObject, F
 		const FScopedTransaction Transaction(FText::FromString("Add Function Pin"));
 
 		Modify();
-		Schema->CreatePin(this, FunctionName, OwnerName, bIsInput);
+		Schema->CreatePin(this, InObject->GetClass()->GetFName(), FunctionName, OwnerName, bIsInput);
 		ReconstructNode();
 		GetGraph()->NotifyGraphChanged();
 	}
@@ -305,6 +329,54 @@ void UActorFlowEdGraphNode::AddFunctionPin(TStrongObjectPtr<UObject> InObject, F
 FLinearColor UActorFlowEdGraphNode::GetNodeBodyTintColor() const
 {
 	return FLinearColor(0.5f, 0.5f, 0.5f, 0.8f);
+}
+
+void UActorFlowEdGraphNode::FixComponentPins()
+{
+	if (AActor* ActorObject = Cast<AActor>(Actor.ResolveObject()))
+	{
+		FName ActorClassName = ActorObject->GetClass()->GetFName();
+		TMap<TPair<FName, FName>, TArray<UEdGraphPin*>> ComponentClassPinMap;
+
+		for (UEdGraphPin* Pin : Pins)
+		{
+			if (Pin->GetPrimaryTerminalType().TerminalCategory == ActorClassName)
+			{
+				continue;
+			}
+			TPair<FName, FName> ClassAndComponentNamesKey(Pin->GetPrimaryTerminalType().TerminalCategory, Pin->GetPrimaryTerminalType().TerminalSubCategory);
+			ComponentClassPinMap.FindOrAdd(ClassAndComponentNamesKey).Add(Pin);
+		}
+		TMap<FName, TArray<UActorComponent*>> ExistingComponentClassMap;
+		TMap<FName, TArray<UActorComponent*>> ExistingComponentNameMap;
+		for (UActorComponent* Component : ActorObject->GetComponents())
+		{
+			ExistingComponentClassMap.FindOrAdd(Component->GetClass()->GetFName()).Add(Component);
+			ExistingComponentNameMap.FindOrAdd(Component->GetFName()).Add(Component);
+		}
+
+		TArray<TPair<FName, FName>> NameKeys;
+		ComponentClassPinMap.GetKeys(NameKeys);
+
+		for (TPair<FName, FName> ClassAndComponentNamesKey : NameKeys)
+		{
+			if (!ExistingComponentNameMap.Contains(ClassAndComponentNamesKey.Value) && ExistingComponentClassMap.Contains(ClassAndComponentNamesKey.Key))
+			{
+				TArray<UEdGraphPin*>* PinsByKey = ComponentClassPinMap.Find(ClassAndComponentNamesKey);
+				TArray<UActorComponent*>* Components = ExistingComponentClassMap.Find(ClassAndComponentNamesKey.Key);
+				if (Components->Num() != 1)
+				{
+					continue;
+				}
+				FName ComponentName = (*Components)[0]->GetFName();
+				for (UEdGraphPin* Pin : *PinsByKey)
+				{
+					Pin->PinType.PinSubCategory = ComponentName;
+				}
+			}
+		}
+	}
+
 }
 
 

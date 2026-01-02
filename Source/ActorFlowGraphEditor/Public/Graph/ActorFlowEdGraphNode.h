@@ -64,4 +64,5 @@ public:
 	virtual bool IncludeParentNodeContextMenu() const override;
 	virtual void AddFunctionPin(TStrongObjectPtr<UObject> InObject, FName FunctionName, bool bIsInput);
 	virtual FLinearColor GetNodeBodyTintColor() const override;
+	virtual void FixComponentPins();
 };
