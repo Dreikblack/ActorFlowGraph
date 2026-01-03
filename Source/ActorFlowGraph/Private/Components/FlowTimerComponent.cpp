@@ -4,8 +4,8 @@
 UFlowTimerComponent::UFlowTimerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	bIsEnable = false;
-	bIsLooped = true;
+	bIsEnabled = false;
+	bDoTriggerOnlyOnce = false;
 	TimerRate = 60.0f;
 }
 
@@ -16,7 +16,7 @@ void UFlowTimerComponent::BeginPlay()
 	Super::BeginPlay();
 	if (UWorld* World = GetWorld())
 	{
-		if (bIsEnable)
+		if (bIsEnabled)
 		{
 			SetTimer();
 		}
@@ -40,27 +40,27 @@ void UFlowTimerComponent::SetTimer()
 {
 	if (UWorld* World = GetWorld())
 	{
-		World->GetTimerManager().SetTimer(TimerHandle, this, &UFlowTimerComponent::OnTimer, TimerRate, bIsLooped);
+		World->GetTimerManager().SetTimer(TimerHandle, this, &UFlowTimerComponent::OnTimer, TimerRate, !bDoTriggerOnlyOnce);
 	}
 }
 
 void UFlowTimerComponent::OnTimer()
 {
-	if (!bIsLooped)
+	if (bDoTriggerOnlyOnce)
 	{
-		bIsEnable = false;
+		bIsEnabled = false;
 	}
 	FLOW_EMIT("OnTimer");
 }
 
 void UFlowTimerComponent::SetEnable(bool bInEnable)
 {
-	if (bIsEnable != bInEnable)
+	if (bIsEnabled != bInEnable)
 	{
-		bIsEnable = bInEnable;
+		bIsEnabled = bInEnable;
 		if (UWorld* World = GetWorld())
 		{
-			if (bIsEnable)
+			if (bIsEnabled)
 			{
 				World->GetTimerManager().UnPauseTimer(TimerHandle);
 			}
@@ -78,7 +78,7 @@ bool UFlowTimerComponent::IsPaused()
 	{
 		return World->GetTimerManager().IsTimerPaused(TimerHandle);
 	}
-	return !bIsEnable;
+	return !bIsEnabled;
 }
 
 bool UFlowTimerComponent::IsTimerActive()
@@ -87,7 +87,7 @@ bool UFlowTimerComponent::IsTimerActive()
 	{
 		return World->GetTimerManager().IsTimerActive(TimerHandle);
 	}
-	return bIsEnable;
+	return bIsEnabled;
 }
 
 float UFlowTimerComponent::GetTimerRemaining()

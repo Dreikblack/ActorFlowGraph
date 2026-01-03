@@ -6,13 +6,7 @@ UFlowAndComponent::UFlowAndComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 	InputsMap.Add(false);
 	InputsMap.Add(false);
-	bEnable = true;
 	bDoTriggerOnlyOnce = true;
-}
-
-void UFlowAndComponent::SetEnable(bool bInEnable)
-{
-	bEnable = bInEnable;
 }
 
 void UFlowAndComponent::InputTrue(int Index)
@@ -24,9 +18,10 @@ void UFlowAndComponent::InputFalse(int Index)
 {
 	Input(Index, false);
 }
+
 void UFlowAndComponent::Input(int Index, bool InValue)
 {
-	if (!bEnable || Index >= InputsMap.Num())
+	if (!bIsEnabled || Index >= InputsMap.Num())
 	{
 		return;
 	}

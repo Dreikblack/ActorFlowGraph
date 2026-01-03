@@ -212,14 +212,20 @@ void UActorFlowGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& Con
 
 	for (UClass* ComponentClass : CachedFlowComponents)
 	{
-		FString Name = FName::NameToDisplayString(ComponentClass->GetName(), false);
-		Name.RemoveFromEnd(TEXT(" Component"));
+		FText Name = ComponentClass->GetDisplayNameText();
+		FString StringName = Name.ToString();
+		StringName.RemoveFromEnd(TEXT(" Component"));
+		StringName.RemoveFromStart(TEXT("Flow "));
+		FTextBuilder TextBuilder;
+		TextBuilder.AppendLine(LOCTEXT("AddActor","Add Actor with:"));
+		TextBuilder.AppendLine(Name);
+		FText ToolTip = TextBuilder.ToText();
 
 		ContextMenuBuilder.AddAction(
 			MakeShared<FActorFlowSchemaAction_NewNode>(
-				FText::FromString("Components"),
-				FText::FromString(Name),
-				FText::FromString("Add Actor with this Component"),
+				FText::FromString("Flow Components"),
+				FText::FromString(StringName),
+				ToolTip,
 				0,
 				ComponentClass
 			)

@@ -6,13 +6,12 @@ UFlowSequenceComponent::UFlowSequenceComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	MaxOutputsCount = 2;
-	bEnable = true;
 	bDoTriggerOnlyOnce = false;
 }
 
 void UFlowSequenceComponent::Input()
 {
-	if (!bEnable)
+	if (!bIsEnabled)
 	{
 		return;
 	}
@@ -24,9 +23,4 @@ void UFlowSequenceComponent::Input()
 	{
 		FLOW_EMIT(FString::FromInt(i));
 	}
-}
-
-void UFlowSequenceComponent::SetEnable(bool bInEnable)
-{
-	bEnable = bInEnable;
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Components/BaseFlowComponent.h"
 #include "FlowTriggerComponent.generated.h"
 
 class UShapeComponent;
@@ -14,7 +14,7 @@ struct FCollisionProperties
 };
 
 UCLASS(ClassGroup = (Flow), meta = (BlueprintSpawnableComponent, FlowOutputs = "OnEnter, OnExit"))
-class ACTORFLOWGRAPH_API UFlowTriggerComponent : public UActorComponent
+class ACTORFLOWGRAPH_API UFlowTriggerComponent : public UBaseFlowComponent
 {
 	GENERATED_BODY()
 
@@ -38,9 +38,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flow | Trigger")
 	bool bDoTriggerOnExitOnlyIfEmpty;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flow | Trigger")
-	bool bDoTriggerOnlyOnce;
-
 protected:
 	virtual void BeginPlay() override;
 
@@ -53,10 +50,6 @@ protected:
 	//Can be overrided to set more complex filter
 	bool IsFilteredActor(AActor* Actor);
 
-	UPROPERTY(EditAnywhere, Category = "Flow | Trigger")
-	bool bEnable;
-
 public:
-	UFUNCTION(BlueprintCallable, meta = (FlowInput))
-	void SetEnable(bool bInEnable = true);
+	virtual void SetEnable(bool bInEnable = true) override;
 };

@@ -11,9 +11,11 @@ class ACTORFLOWGRAPH_API UBaseFlowComponent : public UActorComponent
 public:
 	UBaseFlowComponent();
 protected:
+	//Will be Input activated
 	UPROPERTY(EditAnywhere, Category = "Flow")
 	bool bIsEnabled;
 
+	/*Opposite of Looped*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flow")
 	bool bDoTriggerOnlyOnce;
 public:

@@ -1,20 +1,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
-#include "InputCounterComponent.generated.h"
+#include "Components/BaseFlowComponent.h"
+#include "FlowInputCounterComponent.generated.h"
 
 
 UCLASS(ClassGroup = (Flow), meta = (BlueprintSpawnableComponent, FlowOutputs = "Output", FlowComponent))
-class ACTORFLOWGRAPH_API UInputCounterComponent : public UActorComponent
+class ACTORFLOWGRAPH_API UFlowInputCounterComponent : public UBaseFlowComponent
 {
 	GENERATED_BODY()
 
 public:
-	UInputCounterComponent();
-
-protected:
-	virtual void BeginPlay() override;
+	UFlowInputCounterComponent();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flow | Counter")

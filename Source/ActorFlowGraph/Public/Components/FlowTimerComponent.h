@@ -1,12 +1,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Components/BaseFlowComponent.h"
 #include "FlowTimerComponent.generated.h"
 
 
 UCLASS(ClassGroup = (Flow), meta = (BlueprintSpawnableComponent, FlowOutputs = "OnTimer", FlowComponent))
-class ACTORFLOWGRAPH_API UFlowTimerComponent : public UActorComponent
+class ACTORFLOWGRAPH_API UFlowTimerComponent : public UBaseFlowComponent
 {
 	GENERATED_BODY()
 
@@ -16,12 +16,6 @@ public:
 protected:
 	FTimerHandle TimerHandle;
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flow | Timer")
-	bool bIsEnable;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flow | Timer")
-	bool bIsLooped;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flow | Timer")
 	float TimerRate;
 protected:
@@ -35,8 +29,7 @@ public:
 	void OnTimer();
 
 	/*Pause or UnPause Timer*/
-	UFUNCTION(BlueprintCallable, meta = (FlowInput))
-	void SetEnable(bool bInEnable = true);
+	virtual void SetEnable(bool bInEnable = true) override;
 
 	UFUNCTION(BlueprintCallable)
 	bool IsPaused();

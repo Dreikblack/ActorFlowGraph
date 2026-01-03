@@ -7,7 +7,7 @@ UFlowTriggerComponent::UFlowTriggerComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 	bDoTriggerOnExitOnlyIfEmpty = true;
 	bDoTriggerOnlyOnce = false;
-	bEnable = true;
+	bIsEnabled = true;
 }
 
 
@@ -20,12 +20,12 @@ void UFlowTriggerComponent::BeginPlay()
 		CollisionShape->OnComponentBeginOverlap.AddDynamic(this, &UFlowTriggerComponent::OnOverlapBegin);
 		CollisionShape->OnComponentEndOverlap.AddDynamic(this, &UFlowTriggerComponent::OnOverlapEnd);
 	}
-	SetEnable(bEnable);
+	SetEnable(bIsEnabled);
 }
 
 void UFlowTriggerComponent::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bEnable || !IsFilteredActor(OtherActor))
+	if (!bIsEnabled || !IsFilteredActor(OtherActor))
 	{
 		return;
 	}
@@ -34,7 +34,7 @@ void UFlowTriggerComponent::OnOverlapBegin(UPrimitiveComponent* OverlappedCompon
 
 void UFlowTriggerComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (!bEnable || !IsFilteredActor(OtherActor))
+	if (!bIsEnabled || !IsFilteredActor(OtherActor))
 	{
 		return;
 	}
@@ -90,7 +90,7 @@ bool UFlowTriggerComponent::IsFilteredActor(AActor* Actor)
 
 void UFlowTriggerComponent::SetEnable(bool bInEnable)
 {
-	bEnable = bInEnable;
+	bIsEnabled = bInEnable;
 	if (!CollisionShape)
 	{
 		return;
