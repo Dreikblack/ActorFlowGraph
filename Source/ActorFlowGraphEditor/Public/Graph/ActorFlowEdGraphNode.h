@@ -40,6 +40,7 @@ protected:
 	virtual TSharedPtr<SGraphNode> CreateVisualWidget() override;
 	void CreateFunctionPinSubMenu(UToolMenu* Menu, bool bIsInput);
 	void CreateFlowComponentSubMenu(UToolMenu* Menu);
+	void CreateRemoveComponentPinsSubMenu(UToolMenu* Menu);
 	virtual void AddFlowComponent(UClass* InComponentClass);
 public:
 	UPROPERTY()
@@ -65,4 +66,5 @@ public:
 	virtual void AddFunctionPin(TStrongObjectPtr<UObject> InObject, FName FunctionName, bool bIsInput);
 	virtual FLinearColor GetNodeBodyTintColor() const override;
 	virtual void FixComponentPins();
+	virtual void RemoveComponentPins(FName InComponentName);
 };

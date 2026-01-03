@@ -10,11 +10,6 @@ UFlowAndComponent::UFlowAndComponent()
 	bDoTriggerOnlyOnce = true;
 }
 
-void UFlowAndComponent::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 void UFlowAndComponent::SetEnable(bool bInEnable)
 {
 	bEnable = bInEnable;

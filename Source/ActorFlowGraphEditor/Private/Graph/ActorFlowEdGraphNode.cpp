@@ -166,6 +166,13 @@ void UActorFlowEdGraphNode::GetNodeContextMenuActions(UToolMenu* Menu, UGraphNod
 			}))
 	);
 
+	Section.AddSubMenu(
+		"RemoveComponentPins",
+		NSLOCTEXT("Flow", "RemoveComponentPins", "Remove Component's Pins"),
+		NSLOCTEXT("Flow", "RemoveComponentPins_Tooltip", "Remove Pins of Selected Component"),
+		FNewToolMenuDelegate::CreateUObject(NonConstThis, &UActorFlowEdGraphNode::CreateRemoveComponentPinsSubMenu)
+	);
+
 	const FGenericCommands& GenericCommands = FGenericCommands::Get();
 	Section.AddMenuEntry(GenericCommands.Delete);
 }
@@ -267,6 +274,31 @@ void UActorFlowEdGraphNode::CreateFlowComponentSubMenu(UToolMenu* Menu)
 		);
 	}
 
+}
+
+void UActorFlowEdGraphNode::CreateRemoveComponentPinsSubMenu(UToolMenu* Menu)
+{
+	FToolMenuSection& SubSection = Menu->AddSection("FlowComponentList", NSLOCTEXT("Flow", "NodeComponentList", "Node's Components"));
+
+	TSet<FName> ComponentNames;
+	for (UEdGraphPin* Pin : Pins)
+	{
+		ComponentNames.Add(Pin->GetPrimaryTerminalType().TerminalSubCategory);
+	}
+	for (FName ComponentName : ComponentNames)
+	{
+		SubSection.AddMenuEntry(
+			ComponentName,
+			FText::FromString(FName::NameToDisplayString(ComponentName.ToString(), false)),
+			FText::FromString("Remove Component's pins"),
+			FSlateIcon(),
+			FUIAction(FExecuteAction::CreateLambda([this, ComponentName]()
+				{
+					RemoveComponentPins(ComponentName);
+				})
+			)
+		);
+	}
 }
 
 void UActorFlowEdGraphNode::AddFlowComponent(UClass* InComponentClass)
@@ -377,6 +409,27 @@ void UActorFlowEdGraphNode::FixComponentPins()
 		}
 	}
 
+}
+
+void UActorFlowEdGraphNode::RemoveComponentPins(FName InComponentName)
+{
+	const FScopedTransaction Transaction(FText::FromString("Remove Component's Pins"));
+
+	Modify();
+	TArray<UEdGraphPin*> PinsToRemove;
+	for (UEdGraphPin* Pin : Pins)
+	{
+		if (Pin->GetPrimaryTerminalType().TerminalSubCategory == InComponentName)
+		{
+			PinsToRemove.Add(Pin);
+		}
+	}
+	for (UEdGraphPin* Pin : PinsToRemove)
+	{
+		RemovePin(Pin);
+	}
+	ReconstructNode();
+	GetGraph()->NotifyGraphChanged();
 }
 
 

@@ -32,9 +32,6 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (FlowInput))
 	void Input(int Index = 0, bool InValue = true);
 
-protected:
-
-	virtual void BeginPlay() override;
 public:
 	UFUNCTION(BlueprintCallable, meta = (FlowInput))
 	void SetEnable(bool bInEnable = true);
