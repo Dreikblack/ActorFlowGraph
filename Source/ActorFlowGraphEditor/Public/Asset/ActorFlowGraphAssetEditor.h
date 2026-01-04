@@ -54,7 +54,6 @@ protected:
 	TSharedRef<SDockTab> SpawnDetailsTab(const FSpawnTabArgs& Args);
 	TSharedRef<SDockTab> SpawnPaletteTab(const FSpawnTabArgs& Args);
 private:
-	FDelegateHandle GraphChangeListenerHandle;
 	TSharedPtr<SActorFlowGraphEditor> GraphEditorWidget;
 	void OnDropActors(const TArray< TWeakObjectPtr<AActor> >& Actors, UEdGraph* Graph, const FVector2f& DropLocation);
 public:

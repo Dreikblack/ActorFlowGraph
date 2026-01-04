@@ -5,13 +5,16 @@
 #include "Modules/ModuleManager.h"
 #include "AssetTypeCategories.h"
 
+
 class IAssetTypeActions;
+class UFlowVariableBase;
 
 class ACTORFLOWGRAPHEDITOR_API FActorFlowGraphEditorModule : public FDefaultModuleImpl
 {
 private:
 	TArray<UClass*> CachedFlowComponents;
-
+	FDelegateHandle FlowVariableFactoryHandle;
+private:
 	virtual void OnEditorSelectionChanged(UObject* NewSelection);
 	virtual void OnActorDeleted(AActor* DeletedActor);
 public:
@@ -24,4 +27,5 @@ public:
 		return CachedFlowComponents;
 	}
 	virtual void RebuildFlowComponentsCache();
+	static UFlowVariableBase* MakeCustomFlowVar(UObject* Outer, FProperty* Prop);
 };

@@ -4,7 +4,7 @@
 #include "FlowVariableBase.generated.h"
 
 UCLASS(Abstract, EditInlineNew, DefaultToInstanced)
-class UFlowVariableBase : public UObject
+class ACTORFLOWGRAPH_API UFlowVariableBase : public UObject
 {
 	GENERATED_BODY()
 
@@ -12,16 +12,18 @@ public:
 	//Data Read
 	virtual void PushToArgs(void* Dest) const
 	{
+
 	}
 
 	//Set Value
 	virtual void PullFromArgs(const void* Src)
 	{
+
 	}
 };
 
 UCLASS(EditInlineNew)
-class UFlowVar_Int : public UFlowVariableBase
+class ACTORFLOWGRAPH_API UFlowVar_Int : public UFlowVariableBase
 {
 	GENERATED_BODY()
 
@@ -41,7 +43,7 @@ public:
 };
 
 UCLASS(EditInlineNew)
-class UFlowVar_Float : public UFlowVariableBase
+class ACTORFLOWGRAPH_API UFlowVar_Float : public UFlowVariableBase
 {
 	GENERATED_BODY()
 
@@ -62,7 +64,7 @@ public:
 
 
 UCLASS(EditInlineNew)
-class UFlowVar_Bool : public UFlowVariableBase
+class ACTORFLOWGRAPH_API UFlowVar_Bool : public UFlowVariableBase
 {
 	GENERATED_BODY()
 
@@ -81,7 +83,7 @@ public:
 	}
 };
 UCLASS(EditInlineNew)
-class UFlowVar_String : public UFlowVariableBase
+class ACTORFLOWGRAPH_API UFlowVar_String : public UFlowVariableBase
 {
 	GENERATED_BODY()
 
@@ -100,7 +102,7 @@ public:
 	}
 };
 UCLASS(EditInlineNew)
-class UFlowVar_Name : public UFlowVariableBase
+class ACTORFLOWGRAPH_API UFlowVar_Name : public UFlowVariableBase
 {
 	GENERATED_BODY()
 
@@ -120,7 +122,7 @@ public:
 };
 
 UCLASS(EditInlineNew)
-class UFlowVar_Text : public UFlowVariableBase
+class ACTORFLOWGRAPH_API UFlowVar_Text : public UFlowVariableBase
 {
 	GENERATED_BODY()
 
@@ -140,7 +142,7 @@ public:
 };
 
 UCLASS(EditInlineNew)
-class UFlowVar_Vector : public UFlowVariableBase
+class ACTORFLOWGRAPH_API UFlowVar_Vector : public UFlowVariableBase
 {
 	GENERATED_BODY()
 
@@ -160,7 +162,7 @@ public:
 };
 
 UCLASS(EditInlineNew)
-class UFlowVar_Rotator : public UFlowVariableBase
+class ACTORFLOWGRAPH_API UFlowVar_Rotator : public UFlowVariableBase
 {
 	GENERATED_BODY()
 
@@ -180,7 +182,7 @@ public:
 };
 
 UCLASS(EditInlineNew)
-class UFlowVar_Guid : public UFlowVariableBase
+class ACTORFLOWGRAPH_API UFlowVar_Guid : public UFlowVariableBase
 {
 	GENERATED_BODY()
 
@@ -200,7 +202,7 @@ public:
 };
 
 UCLASS(EditInlineNew)
-class UFlowVar_Object : public UFlowVariableBase
+class ACTORFLOWGRAPH_API UFlowVar_Object : public UFlowVariableBase
 {
 	GENERATED_BODY()
 
@@ -223,7 +225,7 @@ public:
 };
 
 UCLASS(EditInlineNew)
-class UFlowVar_Enum : public UFlowVariableBase
+class ACTORFLOWGRAPH_API UFlowVar_Enum : public UFlowVariableBase
 {
 	GENERATED_BODY()
 
@@ -246,7 +248,7 @@ public:
 };
 
 UCLASS(EditInlineNew)
-class UFlowVar_LinearColor : public UFlowVariableBase
+class ACTORFLOWGRAPH_API UFlowVar_LinearColor : public UFlowVariableBase
 {
 	GENERATED_BODY()
 
@@ -266,7 +268,7 @@ public:
 };
 
 UCLASS(EditInlineNew)
-class UFlowVar_Map : public UFlowVariableBase
+class ACTORFLOWGRAPH_API UFlowVar_Map : public UFlowVariableBase
 {
 	GENERATED_BODY()
 
@@ -302,91 +304,3 @@ public:
 		}
 	}
 };
-
-static UFlowVariableBase* MakeFlowVarFromProperty(UObject* Outer, FProperty* Prop)
-{
-	if (!Prop)
-	{
-		return nullptr;
-	}
-
-	// INT
-	if (CastField<FIntProperty>(Prop))
-	{
-		return NewObject<UFlowVar_Int>(Outer);
-	}
-
-	// FLOAT
-	if (CastField<FFloatProperty>(Prop))
-	{
-		return NewObject<UFlowVar_Float>(Outer);
-	}
-
-	// BOOL
-	if (CastField<FBoolProperty>(Prop))
-	{
-		return NewObject<UFlowVar_Bool>(Outer);
-	}
-
-	// STRING
-	if (CastField<FStrProperty>(Prop))
-	{
-		return NewObject<UFlowVar_String>(Outer);
-	}
-
-	// NAME
-	if (CastField<FNameProperty>(Prop))
-	{
-		return NewObject<UFlowVar_Name>(Outer);
-	}
-
-	// TEXT
-	if (CastField<FTextProperty>(Prop))
-	{
-		return NewObject<UFlowVar_Text>(Outer);
-	}
-
-	// ENUM
-	if (auto* EP = CastField<FEnumProperty>(Prop))
-	{
-		auto* V = NewObject<UFlowVar_Enum>(Outer);
-		V->Enum = EP->GetEnum();
-		return V;
-	}
-
-	// OBJECT
-	if (auto* OP = CastField<FObjectPropertyBase>(Prop))
-	{
-		auto* V = NewObject<UFlowVar_Object>(Outer);
-		V->AllowedClass = OP->PropertyClass;
-		return V;
-	}
-
-	// COLOR
-	if (FStructProperty* StructProp = CastField<FStructProperty>(Prop))
-	{
-		if (StructProp->Struct == TBaseStructure<FLinearColor>::Get())
-		{
-			return NewObject<UFlowVar_LinearColor>(Outer);
-		}
-	}
-
-	// FLOW VAR MAP
-	if (FMapProperty* MapProperty = CastField<FMapProperty>(Prop))
-	{
-		// Check key type: FName
-		if (CastField<FNameProperty>(MapProperty->KeyProp))
-		{
-			// Check value type: UFlowVariableBase*
-			if (FObjectProperty* ObjectValueProperty = CastField<FObjectProperty>(MapProperty->ValueProp))
-			{
-				if (ObjectValueProperty->PropertyClass->IsChildOf(UFlowVariableBase::StaticClass()))
-				{
-					return NewObject<UFlowVar_Map>(Outer);
-				}
-			}
-		}
-	}
-
-	return nullptr;
-}

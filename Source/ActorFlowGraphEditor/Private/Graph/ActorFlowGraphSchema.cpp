@@ -3,6 +3,7 @@
 #include "Widgets/ActorFlowConnectionDrawingPolicy.h"
 #include "Graph/ActorFlowSchemaActions.h"
 #include "ActorFlowGraphEditorModule.h"
+#include "FlowVariableFactoryRegistry.h"
 
 #define LOCTEXT_NAMESPACE "ActorFlowGraph"
 
@@ -79,23 +80,23 @@ bool UActorFlowGraphSchema::TryCreateConnection(UEdGraphPin* PinA, UEdGraphPin* 
 
 UFlowConnectionVariables* UActorFlowGraphSchema::GetVariablesByFunction(UActorFlowEdGraphNode* ActorFlowGraphNode, UFunction* InFunction, UEdGraphPin* PinA, UEdGraphPin* PinB) const
 {
-	UFlowConnectionVariables* Variables = NewObject<UFlowConnectionVariables>(ActorFlowGraphNode, UFlowConnectionVariables::StaticClass(), NAME_None, RF_Transactional);
+	UFlowConnectionVariables* ConnectionVariables = NewObject<UFlowConnectionVariables>(ActorFlowGraphNode, UFlowConnectionVariables::StaticClass(), NAME_None, RF_Transactional);
 
 	for (TFieldIterator<FProperty> It(InFunction); It; ++It)
 	{
 		FProperty* Prop = *It;
-		UFlowVariableBase* Var = MakeFlowVarFromProperty(Variables, Prop);
+		UFlowVariableBase* Var = FFlowVariableFactoryRegistry::MakeFlowVarFromProperty(ConnectionVariables, Prop);
 		if (Var)
 		{
-			Variables->VariablesMap.Add(Prop->GetFName(), Var);
+			ConnectionVariables->VariablesMap.Add(Prop->GetFName(), Var);
 		}
 		else
 		{
-			Variables->VariablesMap.Add(Prop->GetFName());
+			ConnectionVariables->VariablesMap.Add(Prop->GetFName());
 		}
 	}
-	Variables->ConnectionName = PinA->GetName() + " -> " + PinB->GetName();
-	return Variables;
+	ConnectionVariables->ConnectionName = PinA->GetName() + " -> " + PinB->GetName();
+	return ConnectionVariables;
 }
 
 void UActorFlowGraphSchema::BreakSinglePinLink(UEdGraphPin* SourcePin, UEdGraphPin* TargetPin) const
