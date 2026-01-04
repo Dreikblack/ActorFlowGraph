@@ -263,7 +263,7 @@ void UActorFlowEdGraphNode::CreateFlowComponentSubMenu(UToolMenu* Menu)
 	{
 		SubSection.AddMenuEntry(
 			ComponentClass->GetFName(),
-			FText::FromString(FName::NameToDisplayString(ComponentClass->GetName(), false)),
+			UActorFlowGraphSchema::GetFlowComponentName(ComponentClass),
 			FText::FromString("Add component to actor of this node"),
 			FSlateIcon(),
 			FUIAction(FExecuteAction::CreateLambda([this, ComponentClass]()
@@ -289,7 +289,7 @@ void UActorFlowEdGraphNode::CreateRemoveComponentPinsSubMenu(UToolMenu* Menu)
 	{
 		SubSection.AddMenuEntry(
 			ComponentName,
-			FText::FromString(FName::NameToDisplayString(ComponentName.ToString(), false)),
+			FText::FromName(ComponentName),
 			FText::FromString("Remove Component's pins"),
 			FSlateIcon(),
 			FUIAction(FExecuteAction::CreateLambda([this, ComponentName]()

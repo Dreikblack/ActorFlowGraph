@@ -6,7 +6,7 @@
 
 class UFlowVariableBase;
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent, FlowComponent))
+UCLASS(ClassGroup=(Flow), meta=(BlueprintSpawnableComponent, FlowComponent))
 class ACTORFLOWGRAPH_API UFlowTriggerActorsTakenByTagOrClassComponent : public UBaseFlowComponent
 {
 	GENERATED_BODY()

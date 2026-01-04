@@ -7,7 +7,7 @@
 
 class UActorFlowGraphRuntime;
 
-UCLASS()
+UCLASS(ClassGroup = (Flow), Blueprintable, BlueprintType)
 class ACTORFLOWGRAPH_API AActorFlowGraphManagerActor : public AActor
 {
 	GENERATED_BODY()

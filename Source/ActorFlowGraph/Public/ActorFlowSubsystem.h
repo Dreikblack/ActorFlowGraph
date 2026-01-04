@@ -6,7 +6,7 @@
 
 #include "ActorFlowSubsystem.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable)
 class ACTORFLOWGRAPH_API UActorFlowSubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()

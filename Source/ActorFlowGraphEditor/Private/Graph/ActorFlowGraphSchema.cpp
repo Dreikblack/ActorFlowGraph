@@ -213,10 +213,7 @@ void UActorFlowGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& Con
 
 	for (UClass* ComponentClass : CachedFlowComponents)
 	{
-		FText Name = ComponentClass->GetDisplayNameText();
-		FString StringName = Name.ToString();
-		StringName.RemoveFromEnd(TEXT(" Component"));
-		StringName.RemoveFromStart(TEXT("Flow "));
+		FText Name = GetFlowComponentName(ComponentClass);
 		FTextBuilder TextBuilder;
 		TextBuilder.AppendLine(LOCTEXT("AddActor","Add Actor with:"));
 		TextBuilder.AppendLine(Name);
@@ -225,7 +222,7 @@ void UActorFlowGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& Con
 		ContextMenuBuilder.AddAction(
 			MakeShared<FActorFlowSchemaAction_NewNode>(
 				FText::FromString("Flow Components"),
-				FText::FromString(StringName),
+				Name,
 				ToolTip,
 				0,
 				ComponentClass
@@ -255,6 +252,15 @@ void UActorFlowGraphSchema::GetContextMenuActions(UToolMenu* Menu, UGraphNodeCon
 FLinearColor UActorFlowGraphSchema::GetPinTypeColor(const FEdGraphPinType& PinType) const
 {
 	return FLinearColor::Green;
+}
+
+FText UActorFlowGraphSchema::GetFlowComponentName(UClass* InComponentClass)
+{
+	FText Name = InComponentClass->GetDisplayNameText();
+	FString StringName = Name.ToString();
+	StringName.RemoveFromEnd(TEXT(" Component"));
+	StringName.RemoveFromStart(TEXT("Flow "));
+	return FText::FromString(StringName);
 }
 
 #undef LOCTEXT_NAMESPACE

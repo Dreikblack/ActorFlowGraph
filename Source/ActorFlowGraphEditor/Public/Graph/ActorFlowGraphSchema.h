@@ -33,4 +33,6 @@ public:
     virtual void GetContextMenuActions(class UToolMenu* Menu, class UGraphNodeContextMenuContext* Context) const override;
 
     virtual FLinearColor GetPinTypeColor(const FEdGraphPinType& PinType) const override;
+
+    static FText GetFlowComponentName(UClass* InComponentClass);
 };
