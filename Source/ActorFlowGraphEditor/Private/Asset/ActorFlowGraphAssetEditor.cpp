@@ -8,6 +8,7 @@
 #include "ActorFlowGraphRuntime.h"
 #include "Graph/ActorFlowEdGraph.h"
 #include "Widgets/SActorFlowPalette.h"
+#include "ActorFlowEditorStyle.h"
 
 
 #define LOCTEXT_NAMESPACE "ActorFlowGraphAssetEditor"
@@ -293,6 +294,22 @@ UActorFlowEdGraphNode* FActorFlowGraphAssetEditor::CreateNodeFromActor(UEdGraph*
 
 	InGraph->AddNode(NewNode, true);
 	return NewNode;
+}
+
+FText FActorFlowGraphAssetEditor::GetToolkitName() const
+{
+	check(GraphAsset != NULL);
+	return GetLabelForObject(GraphAsset);
+}
+
+const FSlateBrush* FActorFlowGraphAssetEditor::GetDefaultTabIcon() const
+{
+	const FSlateBrush* IconBrush = FActorFlowEditorStyle::GetBrush(TEXT("ClassIcon.ActorFlowGraphAsset"));
+	if (!IconBrush)
+	{
+		IconBrush = FAssetEditorToolkit::GetDefaultTabIcon();
+	}
+	return IconBrush;
 }
 
 void FActorFlowGraphAssetEditor::SelectNode(AActor* Actor)

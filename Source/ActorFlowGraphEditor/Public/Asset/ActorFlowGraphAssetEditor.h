@@ -62,6 +62,8 @@ public:
 	void SelectNode(AActor* Actor);
 	void DeleteNodesByActor(AActor* InDeletedActor);
 	UActorFlowEdGraphNode* CreateNodeFromActor(UEdGraph* Graph, AActor* Actor, const FVector2f& Position);
+	virtual FText GetToolkitName() const override;
+	virtual const FSlateBrush* GetDefaultTabIcon() const override;
 
 	TSharedPtr<SActorFlowGraphEditor> GetEditorWidget() const
 	{
