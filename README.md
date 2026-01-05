@@ -2,6 +2,7 @@
 
 **Actor Flow Graph** is the editor plugin for Unreal Engine 5.
 It provides a Node Editor for simple visual scripting of event chains in game levels (for example, entering a trigger opens a door), similar to Flow Graph in Leadwerks or CryEngine.
+<img width="2550" height="1088" alt="UnrealEditor_G1o6kZhq9m" src="https://github.com/user-attachments/assets/bc7b661e-1dfe-427b-8d95-4bcea57b0787" />
 
 Blueprints can be used in a similar way, but Actor Flow Graph requires fewer nodes, should be significantly more performant (as it is implemented purely in C++), and is more intuitive (at least for me):
 
