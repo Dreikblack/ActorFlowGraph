@@ -3,6 +3,7 @@
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Text/STextBlock.h"
 #include "ISinglePropertyView.h"
+#include "Widgets/Input/SSearchBox.h"
 
 void SFunctionPickerWidget::Construct(const FArguments& InArgs)
 {

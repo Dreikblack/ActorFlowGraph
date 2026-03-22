@@ -2,7 +2,6 @@
 #include "Widgets/SActorFlowGraphNode.h"
 #include "Framework/Commands/GenericCommands.h"
 #include "ToolMenuSection.h"
-#include "Widgets/Input/SSearchBox.h"
 #include "Widgets/Views/SListView.h"
 #include "Widgets/Views/ITableRow.h"
 #include "Widgets/SFunctionPickerWidget.h"

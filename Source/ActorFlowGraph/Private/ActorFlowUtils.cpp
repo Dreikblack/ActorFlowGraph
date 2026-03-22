@@ -1,6 +1,6 @@
 #include "ActorFlowUtils.h"
 
-static bool CallFunctionByName(UObject* Object, const FName FuncName, TMap<FName, UFlowVariableBase*> VariablesMap)
+bool CallFunctionByName(UObject* Object, const FName FuncName, TMap<FName, UFlowVariableBase*> VariablesMap)
 {
 	if (!Object)
 	{

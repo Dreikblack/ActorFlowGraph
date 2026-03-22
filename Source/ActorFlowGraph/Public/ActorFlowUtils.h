@@ -2,6 +2,8 @@
 
 #include "ActorFlowSubsystem.h"
 
+class UFlowVariableBase;
+
 inline void FlowEmit(UObject* Sender, FName Pin)
 {
 	if (!Sender)
@@ -23,4 +25,4 @@ inline void FlowEmit(UObject* Sender, FName Pin)
 
 #define FLOW_EMIT(Pin) FlowEmit(this, FName(Pin))
 
-static bool CallFunctionByName(UObject* Object, const FName FuncName, TMap<FName, UFlowVariableBase*> VariablesMap);
+bool CallFunctionByName(UObject* Object, const FName FuncName, TMap<FName, UFlowVariableBase*> VariablesMap);

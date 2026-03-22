@@ -1,4 +1,5 @@
 #include "Widgets/SActorFlowGraphNode.h"
+#include "Graph/ActorFlowEdGraphNode.h"
 #include "NodeFactory.h"
 #include "SGraphPin.h"
 #include "IDocumentation.h"

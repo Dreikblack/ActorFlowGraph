@@ -2,6 +2,8 @@
 
 #include "CoreMinimal.h"
 
+class UFlowVariableBase;
+
 DECLARE_DELEGATE_RetVal_TwoParams(
     UFlowVariableBase*,
     FFlowVariableFactoryDelegate,
@@ -9,7 +11,6 @@ DECLARE_DELEGATE_RetVal_TwoParams(
     FProperty* /*Property*/
 );
 
-class UFlowVariableBase;
 
 struct FFactoryEntry
 {

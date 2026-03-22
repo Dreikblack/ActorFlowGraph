@@ -1,4 +1,5 @@
 #include "Graph/ActorFlowEdGraph.h"
+#include "Asset/ActorFlowGraphAsset.h"
 
 UActorFlowGraphAsset* UActorFlowEdGraph::GetAsset() const
 {

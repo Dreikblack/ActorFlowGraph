@@ -5,7 +5,6 @@
 #include "ActorFlowGraphRuntime.h"
 #include "ActorFlowEdGraphNode.generated.h"
 
-class SSearchBox;
 class ITableRow;
 template <typename ItemType> class SListView;
 
